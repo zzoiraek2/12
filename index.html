@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>USDT 안전거래 정책 분석</title>
+    <link rel="stylesheet" href="./styles.css?v=20260616-13" />
+    <script src="./vendor/mermaid.min.js?v=20260616-1"></script>
+    <script src="./vendor/lucide.min.js?v=20260616-1"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">개발 산출물 · 화면 설계 보조자료 · 운영/준법 검토</p>
+          <h1>USDT 안전거래 정책 분석</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="version-pill">v1.0</span>
+          <button class="icon-button" id="downloadMd" title="Markdown 내보내기" type="button">
+            <i data-lucide="file-down"></i>
+          </button>
+          <button class="icon-button" id="downloadJson" title="JSON 내보내기" type="button">
+            <i data-lucide="braces"></i>
+          </button>
+          <a class="icon-button" href="./usdt_safe_trade_sequence_interpretation_spec.md" title="원본 명세 열기">
+            <i data-lucide="file-text"></i>
+          </a>
+        </div>
+      </header>
+
+      <aside class="sidebar" aria-label="페이지 내비게이션">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input id="globalSearch" type="search" placeholder="메시지, 버튼, 상태 검색" />
+        </div>
+        <nav id="navList"></nav>
+      </aside>
+
+      <main class="content">
+        <section class="section-panel" id="sequence">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">전체 시퀀스</p>
+              <h2>거래 흐름 Mermaid</h2>
+            </div>
+            <button class="text-button" id="toggleMermaidSource" type="button">
+              <i data-lucide="code-2"></i>
+              원문 보기
+            </button>
+          </div>
+          <div class="mermaid-wrap">
+            <p class="offline-note hidden" id="mermaidFallbackNotice">
+              Mermaid 렌더러를 불러오지 못해 시퀀스 원문을 표시합니다. 내부망 배포 시
+              <code>vendor/mermaid.min.js</code> 파일이 함께 배포되어야 합니다.
+            </p>
+            <pre class="mermaid" id="mermaidDiagram"></pre>
+            <pre class="source-code hidden" id="mermaidSourceView"></pre>
+          </div>
+        </section>
+
+        <section class="section-panel" id="steps">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">STEP 해석</p>
+              <h2>고객 경험 기준 상세 단계</h2>
+            </div>
+            <div class="segmented" id="roleFilter" aria-label="역할 필터"></div>
+          </div>
+          <div class="step-rail" id="stepRail"></div>
+          <div class="step-detail" id="stepDetail"></div>
+        </section>
+
+        <section class="section-panel" id="states">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">상태 정의</p>
+              <h2>외부 상태와 내부 상태값</h2>
+            </div>
+          </div>
+          <div class="two-column">
+            <div>
+              <h3>외부 노출 상태</h3>
+              <div class="table-wrap" id="externalStateTable"></div>
+            </div>
+            <div>
+              <h3>내부 상태값</h3>
+              <div class="table-wrap" id="internalStateTable"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-panel" id="buttons">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">버튼 정책</p>
+              <h2>활성화 조건과 클릭 동작</h2>
+            </div>
+          </div>
+          <div class="two-column" id="buttonTables"></div>
+        </section>
+
+        <section class="section-panel" id="messages">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">메시지 정책</p>
+              <h2>상태메시지와 메신저 문구</h2>
+            </div>
+          </div>
+          <div class="two-column">
+            <div>
+              <h3>상태메시지</h3>
+              <div class="table-wrap" id="statusMessageTable"></div>
+            </div>
+            <div>
+              <h3>메신저</h3>
+              <div class="table-wrap" id="messengerTable"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-panel" id="monitoring">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">포블 모니터링</p>
+              <h2>자동 감시와 운영자 승인 포인트</h2>
+            </div>
+          </div>
+          <div class="kanban" id="monitoringBoard"></div>
+          <h3>승인/검토 포인트</h3>
+          <div class="table-wrap" id="approvalTable"></div>
+        </section>
+
+        <section class="section-panel" id="cancel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">취소/패널티</p>
+              <h2>취소 가능 시점과 재신청 제한</h2>
+            </div>
+          </div>
+          <div class="policy-grid" id="cancelPolicies"></div>
+        </section>
+
+        <section class="section-panel" id="security">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">보안/로그</p>
+              <h2>니모닉 열람, 조각화, 접근 로그</h2>
+            </div>
+          </div>
+          <div class="policy-grid" id="securityPolicies"></div>
+        </section>
+
+        <section class="section-panel" id="exceptions">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">예외처리</p>
+              <h2>지연, 불일치, 분쟁 전환 조건</h2>
+            </div>
+          </div>
+          <div class="matrix-grid" id="exceptionMatrices"></div>
+        </section>
+
+        <section class="section-panel" id="admin-settings">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">어드민 설정</p>
+              <h2>거래 정책, 수수료, 게시/콘텐츠 설정</h2>
+            </div>
+          </div>
+          <div class="two-column" id="adminSettingTables"></div>
+        </section>
+
+        <section class="section-panel" id="settlement">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">정산/수수료</p>
+              <h2>수수료 산정, 정산 상태, 변경 감사</h2>
+            </div>
+          </div>
+          <div class="two-column" id="settlementTables"></div>
+        </section>
+
+        <section class="section-panel" id="operations">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">운영 관리</p>
+              <h2>분쟁, 첨부파일, 이체확인증, 게시판 관리</h2>
+            </div>
+          </div>
+          <div class="policy-grid" id="operationPolicies"></div>
+          <h3>권한/감사 로그</h3>
+          <div class="table-wrap" id="permissionTable"></div>
+        </section>
+
+        <section class="section-panel" id="policy-docs">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">정책문서</p>
+              <h2>약관, 동의문, 이용방법, Q&A</h2>
+            </div>
+          </div>
+          <div class="document-grid" id="policyDocs"></div>
+        </section>
+
+        <section class="section-panel" id="backend">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">개발 구현 기준</p>
+              <h2>서버 검증과 데이터 모델</h2>
+            </div>
+          </div>
+          <div class="two-column">
+            <div>
+              <h3>상태 전이 서버 검증</h3>
+              <div class="checklist" id="serverValidation"></div>
+            </div>
+            <div>
+              <h3>중복 클릭 방지</h3>
+              <div class="table-wrap" id="idempotencyTable"></div>
+            </div>
+          </div>
+          <div class="model-grid" id="modelGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js?v=20260616-16"></script>
+  </body>
+</html>

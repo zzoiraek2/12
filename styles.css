@@ -413,6 +413,13 @@ input {
   font-size: 13px;
 }
 
+.card-subtitle {
+  margin: 4px 0 12px;
+  color: var(--brand-2);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .step-detail {
   display: grid;
   gap: 16px;

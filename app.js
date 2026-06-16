@@ -583,7 +583,7 @@ const improvedMermaidSource = `sequenceDiagram
     participant Chain as 블록체인 네트워크
     participant Ops as 포블 운영자
 
-    Note over Buyer,Seller: 개선안: 신청 전 준비를 앞당겨 매칭 후 진행 대기시간을 줄인다.
+    Note over Buyer,Seller: 개선안: 신청 전 준비를 앞당기고 거래 중 화면은 역할별 STEP1/STEP2로 단순화한다.
 
     par 매수자 신청 전 준비
         Buyer->>Foblgate: 거래금액 선택
@@ -622,36 +622,43 @@ const improvedMermaidSource = `sequenceDiagram
     Foblgate->>BuyWallet: 매수자 소유 수령지갑 생성
     BuyWallet-->>Foblgate: 지갑주소 및 니모닉 생성
     Foblgate->>Foblgate: 니모닉 암호화 보관
-    Foblgate-->>Seller: 매수자 수령지갑 주소 및 USDT 입금 상태창 표시
-    Foblgate-->>Buyer: 수령지갑 USDT 입금 대기 상태 표시
+    Foblgate-->>Seller: 매도자 STEP1 - 매수자 수령지갑/포블 수수료 지갑주소 표시
+    Foblgate-->>Buyer: 매수자 STEP1 - 수령지갑 USDT 입금 대기 상태 표시
 
-    par 매도자 USDT 전송
+    par 매도자 STEP1 - USDT 입금
         Seller->>BuyWallet: 매수자 실제 수령 USDT 전송
         Seller->>FeeWallet: 포블 수수료 USDT 전송
-    and 자동검증
+    and 시스템 자동검증
         Foblgate->>Chain: 수령지갑 입금 확인
         Foblgate->>Chain: 수수료 지갑 입금 확인
         Chain-->>Foblgate: TXID/수량/네트워크 검증 결과
     end
 
     alt USDT 및 수수료 정상 검증
-        Foblgate-->>Buyer: USDT 입금 확인 완료, 매도자 원화 계좌 표시
+        Foblgate-->>Seller: STEP1 입금확인 완료
+        Foblgate-->>Buyer: USDT 입금 확인 완료, 매도자 원화 계좌 오픈
         Buyer->>Seller: 원화 이체
         Buyer->>Foblgate: 이체확인증 등록
-        Foblgate-->>Seller: 상대방 입금 확인 요청
+        Foblgate-->>Buyer: 본인이 이체한 거래가 틀림없습니까? 거래소 검토 동의
+        Buyer->>Foblgate: [버튼] 입금을 완료했습니다
+        Foblgate->>Messenger: 매수자 입금완료 메시지 생성
+        Messenger-->>Seller: 매수자가 입금을 완료했습니다. 본인 계좌에서 확인해 주세요.
     else USDT 지연/수량 불일치
         Foblgate->>Ops: 입금 지연/수량 불일치 알림
         Ops->>Foblgate: 보완요청/보류/분쟁 검토
     end
 
+    Foblgate-->>Seller: 매도자 STEP2 - 원화 입금 확인 화면
+    Foblgate-->>Buyer: 매수자 STEP2 - 상대방 확인 및 거래소 검토 대기
     Seller->>Seller: 본인 계좌에서 원화 입금 여부 확인
     Seller->>Foblgate: [버튼] 원화 입금 확인 완료
     Ops->>Foblgate: 이체확인증 및 이상거래 검토
 
     alt 원화 수취 및 증빙 정상
-        Foblgate-->>Buyer: 매도자 원화 입금 확인 완료 메시지
-        Buyer->>Foblgate: STEP5 PIN 재입력
-        Foblgate-->>Buyer: 니모닉 열람
+        Foblgate-->>Seller: 상대방 지갑 확인 대기
+        Foblgate-->>Buyer: 니모닉 오픈 버튼 활성화
+        Buyer->>Foblgate: [버튼] 니모닉 조회
+        Foblgate-->>Buyer: 니모닉 표시
         Foblgate->>Foblgate: 니모닉 열람 시 거래완료 확정
         Foblgate-->>Buyer: 거래가 종료되었습니다.
         Foblgate-->>Seller: 거래가 종료되었습니다.
@@ -665,6 +672,57 @@ const sequenceVariants = [
   ["current", "기존 시퀀스", "정책 검토용 기본 흐름", currentMermaidSource],
   ["improved", "개선 시퀀스", "신청 전 준비를 앞당긴 UX 흐름", improvedMermaidSource]
 ];
+
+const improvedPolicyImpact = {
+  roleSteps: [
+    ["매도자 STEP1", "USDT 입금 수행/검증", ["매수자 수령지갑 주소와 포블 수수료 지갑 주소 확인", "지정 수량과 네트워크로 USDT 전송", "수령지갑/수수료 지갑 자동검증 완료까지 같은 화면에서 확인"]],
+    ["매도자 STEP2", "원화 수취 확인/완료 대기", ["매수자 입금완료 메시지 수신", "본인 계좌에서 실제 입금 여부 직접 확인", "입금 확인 완료 버튼 클릭 후 상대방 지갑 확인 및 거래완료 대기"]],
+    ["매수자 STEP1", "USDT 확인/원화 입금", ["수령지갑 USDT 입금 자동검증 확인", "검증 후 매도자 원화 입금계좌 오픈", "이체확인증 등록, 본인 이체 확인 동의, 입금완료 메시지 송출"]],
+    ["매수자 STEP2", "니모닉 열람/거래완료", ["매도자 원화 입금확인 완료 대기", "거래소 이체확인증 검토 완료 대기", "니모닉 오픈 버튼 활성화 후 조회하면 거래완료 전환"]]
+  ],
+  states: [
+    ["PRE_BUYER_WALLET_TERMS_ACCEPTED", "신청 전", "매수자가 수령지갑 생성 약관에 동의했지만 실제 지갑은 아직 생성하지 않은 상태"],
+    ["PRE_SELLER_ACCOUNT_VERIFIED", "신청 전", "매도자가 거래금액 선택과 본인명의 원화 수취계좌 1원 인증을 완료한 상태"],
+    ["MATCH_CONFIRMED", "매칭확정", "양측 의사확인, PIN, 필요 시 ARS 동의까지 완료되어 지갑주소 생성이 가능한 상태"],
+    ["WALLET_ADDRESS_OPENED_TO_SELLER", "매도자 STEP1", "매수자 수령지갑 주소와 포블 수수료 지갑 주소가 매도자에게 노출된 상태"],
+    ["USDT_AUTO_VERIFIED", "매수자 STEP1", "수령지갑 입금과 포블 수수료 지갑 입금이 자동검증된 상태"],
+    ["KRW_ACCOUNT_OPENED_TO_BUYER", "매수자 STEP1", "USDT 검증 완료 후 매도자 원화 입금계좌가 매수자에게 공개된 상태"],
+    ["BUYER_KRW_PROOF_SUBMITTED", "매수자 STEP1", "매수자가 이체확인증을 등록하고 본인 이체 확인 동의를 완료한 상태"],
+    ["SELLER_KRW_CONFIRMED", "매도자 STEP2", "매도자가 본인 계좌에서 원화 입금을 확인하고 완료 버튼을 누른 상태"],
+    ["TRANSFER_REVIEW_COMPLETED", "매수자 STEP2", "거래소가 이체확인증과 이상거래 검토를 완료한 상태"],
+    ["MNEMONIC_OPEN_ENABLED", "매수자 STEP2", "매도자 확인과 거래소 검토가 모두 끝나 니모닉 조회 버튼이 활성화된 상태"]
+  ],
+  buttons: [
+    ["매도자", "USDT 입금정보 확인", "STEP1", "매수자 수령지갑/포블 수수료 지갑 주소 확인", "매칭확정 및 지갑 생성 완료"],
+    ["매도자", "입금 상태 새로고침", "STEP1", "수령지갑/수수료 지갑 자동검증 상태 재조회", "USDT 전송 후 검증 대기"],
+    ["매도자", "원화 입금 확인 완료", "STEP2", "본인 계좌 원화 수취 확인 저장", "매수자 입금완료 메시지 수신 후"],
+    ["매수자", "USDT 입금 확인", "STEP1", "수령지갑 입금 상태 확인", "자동검증 완료 전까지 대기"],
+    ["매수자", "원화 계좌 확인", "STEP1", "매도자 본인명의 원화 수취계좌 확인", "USDT 및 수수료 검증 완료 후"],
+    ["매수자", "이체확인증 등록", "STEP1", "원화 이체 증빙 첨부", "원화 계좌 오픈 후"],
+    ["매수자", "입금을 완료했습니다", "STEP1", "본인 이체 확인 동의 후 매도자에게 메시지 송출", "이체확인증 등록 및 동의 완료 후"],
+    ["매수자", "니모닉 조회", "STEP2", "니모닉 표시 및 거래완료 전환", "매도자 입금확인 완료 + 거래소 검토 완료"]
+  ],
+  messages: [
+    ["지갑주소 오픈", "매도자", "매수자 수령지갑과 포블 수수료 지갑이 생성되었습니다. 지정 수량을 전송해 주세요."],
+    ["USDT 자동검증 완료", "매수자", "USDT 입금이 확인되었습니다. 매도자 원화 입금계좌를 확인하고 이체를 진행해 주세요."],
+    ["이체확인증/본인확인", "매수자", "이체확인증을 등록하고 본인이 이체한 거래가 맞는지 확인해 주세요."],
+    ["입금완료 송출", "매도자", "매수자가 입금을 완료했다고 알렸습니다. 본인 계좌에서 실제 입금 여부를 확인해 주세요."],
+    ["원화 확인 완료", "매수자", "매도자의 원화 입금 확인이 완료되었습니다. 거래소 이체확인증 검토를 기다려 주세요."],
+    ["니모닉 활성화", "매수자", "매도자 확인과 거래소 검토가 완료되었습니다. 니모닉을 조회할 수 있습니다."],
+    ["거래완료", "양측", "매수자가 니모닉을 조회하여 거래가 완료되었습니다."]
+  ],
+  monitoring: [
+    ["신청 전 계좌 인증", "매도자 신청 허용 전 1원 인증 완료 여부", "신청 차단/재인증"],
+    ["신청 전 지갑 동의", "매수자 신청 허용 전 수령지갑 생성 약관 동의 여부", "신청 차단/동의 요청"],
+    ["지갑주소 생성", "매칭확정 및 PIN 이후 지갑주소 생성 성공 여부", "재시도/운영자 알림"],
+    ["USDT 자동검증", "수령지갑 입금, 수수료 지갑 입금, TXID, 수량, 네트워크 일치 여부", "정상/보류/분쟁"],
+    ["원화계좌 오픈", "USDT 자동검증 완료 전 원화계좌 미노출 여부", "노출 차단"],
+    ["본인 이체 확인 동의", "이체확인증 등록 후 본인 이체 확인 동의 여부", "입금완료 메시지 차단"],
+    ["매도자 원화 확인", "매도자가 본인 계좌에서 입금 확인 완료 버튼을 눌렀는지", "재알림/분쟁"],
+    ["거래소 검토 완료", "이체확인증, 금액, 입금자명, 이상거래 여부 검토 완료", "니모닉 버튼 활성/보류"],
+    ["니모닉 조회", "니모닉 조회 시 거래완료 전환 및 접근 로그 저장", "완료/보안 로그"]
+  ]
+};
 
 let selectedStepId = "request";
 let selectedRole = "all";
@@ -1239,6 +1297,23 @@ function renderSteps() {
     .join("");
 
   renderStepDetail();
+  renderImprovedRoleSteps();
+}
+
+function renderImprovedRoleSteps() {
+  const target = document.getElementById("improvedRoleSteps");
+  if (!target) return;
+  target.innerHTML = improvedPolicyImpact.roleSteps
+    .map(
+      ([title, subtitle, items]) => `
+        <article class="policy-card" data-searchable>
+          <h4>${icon("panel-top")} ${escapeHtml(title)}</h4>
+          <p class="card-subtitle">${escapeHtml(subtitle)}</p>
+          ${list(items)}
+        </article>
+      `
+    )
+    .join("");
 }
 
 function roleVisible(role) {
@@ -1296,6 +1371,7 @@ function roleLabel(role) {
 function renderStateTables() {
   document.getElementById("externalStateTable").innerHTML = renderTable(["상태", "설명", "취소"], appData.externalStates, { statusFirst: true });
   document.getElementById("internalStateTable").innerHTML = renderTable(["내부 상태값", "외부 상태", "설명"], appData.internalStates, { codeFirst: true });
+  document.getElementById("improvedStateTable").innerHTML = renderTable(["상태값", "역할별 단계", "의미"], improvedPolicyImpact.states, { codeFirst: true });
 }
 
 function renderButtonTables() {
@@ -1309,11 +1385,13 @@ function renderButtonTables() {
       <div class="table-wrap">${renderTable(["버튼명", "노출 단계", "활성화 조건", "클릭 시 동작", "비활성화 조건"], appData.buttons.seller)}</div>
     </div>
   `;
+  document.getElementById("improvedButtonTable").innerHTML = renderTable(["대상", "버튼명", "노출 단계", "클릭 시 동작", "활성화 조건"], improvedPolicyImpact.buttons);
 }
 
 function renderMessageTables() {
   document.getElementById("statusMessageTable").innerHTML = renderTable(["이벤트", "매수자 상태메시지", "매도자 상태메시지"], appData.statusMessages);
   document.getElementById("messengerTable").innerHTML = renderTable(["발생 조건", "수신자", "메신저 문구"], appData.messenger);
+  document.getElementById("improvedMessageTable").innerHTML = renderTable(["발생 조건", "수신자", "메시지 문구"], improvedPolicyImpact.messages);
 }
 
 function renderMonitoring() {
@@ -1347,6 +1425,7 @@ function renderMonitoring() {
     })
     .join("");
   document.getElementById("approvalTable").innerHTML = renderTable(["승인/검토명", "담당", "트리거", "결과값"], appData.approvals);
+  document.getElementById("improvedMonitoringTable").innerHTML = renderTable(["항목", "검토 기준", "결과/차단"], improvedPolicyImpact.monitoring);
 }
 
 function renderPolicies() {

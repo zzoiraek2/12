@@ -306,6 +306,25 @@ input {
   min-width: 108px;
 }
 
+.sequence-mode {
+  display: flex;
+  align-items: center;
+}
+
+.sequence-mode-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .mermaid-wrap {
   max-width: 100%;
   min-height: 420px;

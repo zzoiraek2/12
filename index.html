@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>USDT 안전거래 정책 분석</title>
-    <link rel="stylesheet" href="./styles.css?v=20260616-19" />
+    <link rel="stylesheet" href="./styles.css?v=20260616-20" />
     <script src="./vendor/mermaid.min.js?v=20260616-1"></script>
     <script src="./vendor/lucide.min.js?v=20260616-1"></script>
   </head>
@@ -45,7 +45,7 @@
               <h2>거래 흐름 Mermaid</h2>
             </div>
             <div class="heading-actions">
-              <div class="segmented sequence-tabs" id="sequenceVariant" aria-label="시퀀스 보기 전환"></div>
+              <div class="sequence-mode" id="sequenceVariant" aria-label="시퀀스 기준"></div>
               <button class="text-button" id="toggleMermaidSource" type="button">
                 <i data-lucide="code-2"></i>
                 원문 보기
@@ -72,7 +72,7 @@
           </div>
           <div class="step-rail" id="stepRail"></div>
           <div class="step-detail" id="stepDetail"></div>
-          <h3>개선안 역할별 STEP</h3>
+          <h3>역할별 처리 요약</h3>
           <div class="policy-grid" id="improvedRoleSteps"></div>
         </section>
 
@@ -93,7 +93,7 @@
               <div class="table-wrap" id="internalStateTable"></div>
             </div>
           </div>
-          <h3>개선안 상태 묶음</h3>
+          <h3>상태 전환 상세</h3>
           <div class="table-wrap" id="improvedStateTable"></div>
         </section>
 
@@ -105,7 +105,7 @@
             </div>
           </div>
           <div class="two-column" id="buttonTables"></div>
-          <h3>개선안 핵심 버튼</h3>
+          <h3>핵심 버튼 전체</h3>
           <div class="table-wrap" id="improvedButtonTable"></div>
         </section>
 
@@ -126,7 +126,7 @@
               <div class="table-wrap" id="messengerTable"></div>
             </div>
           </div>
-          <h3>개선안 메시지</h3>
+          <h3>거래 진행 메시지 전체</h3>
           <div class="table-wrap" id="improvedMessageTable"></div>
         </section>
 
@@ -140,7 +140,7 @@
           <div class="kanban" id="monitoringBoard"></div>
           <h3>승인/검토 포인트</h3>
           <div class="table-wrap" id="approvalTable"></div>
-          <h3>개선안 모니터링/승인 변경점</h3>
+          <h3>모니터링/승인 상세</h3>
           <div class="table-wrap" id="improvedMonitoringTable"></div>
         </section>
 
@@ -238,6 +238,6 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260616-24"></script>
+    <script src="./app.js?v=20260616-25"></script>
   </body>
 </html>

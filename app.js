@@ -16,34 +16,38 @@ const appData = {
     ["backend", "개발 기준", "database"]
   ],
   externalStates: [
-    ["거래없음", "신청 전 최초 상태", "해당 없음"],
-    ["거래신청", "매수 또는 매도 거래신청 후 상대방 매칭 대기", "가능"],
-    ["매칭준비중", "상대방과 매칭되었으나 확정 전", "가능"],
-    ["매칭확정", "양측 메시지, 약관동의, PIN 서명 완료", "불가"],
-    ["거래진행중", "USDT 전송, 원화 이체, 확인증 검토 등 진행", "불가"],
-    ["거래완료", "매수자 지갑 확인 완료", "불가"],
-    ["분쟁검토", "금액 불일치, 미입금, 증빙 불충분 등 운영자 검토", "불가"],
-    ["취소완료", "신청 또는 매칭준비중 취소 완료", "해당 없음"]
+    ["신청 전", "매수자 수령지갑 생성 동의 또는 매도자 1원 인증을 준비하는 상태", "해당 없음"],
+    ["거래신청", "매수 또는 매도 신청 후 동일 금액대 상대방 매칭 대기", "가능"],
+    ["매칭준비중", "상대방과 매칭되었으나 양측 거래 의사 메시지와 PIN 완료 전", "가능"],
+    ["매칭확정", "양측 메시지, 약관동의, PIN, 필요 시 ARS 동의가 완료된 상태", "불가"],
+    ["STEP1-1", "매도자가 지갑주소를 확인하고 USDT와 포블 수수료 USDT를 전송하는 상태", "불가"],
+    ["STEP1-2", "매수자가 USDT 확인 후 원화 계좌를 확인하고 이체확인증을 등록하는 상태", "불가"],
+    ["STEP2", "매도자 원화 확인과 거래소 검토 후 매수자 니모닉 조회를 진행하는 상태", "불가"],
+    ["거래완료", "매수자 니모닉 조회로 거래 완료가 확정된 상태", "불가"],
+    ["분쟁검토", "원화 미입금, 증빙 불일치, USDT 수량 불일치 등 운영자 검토 상태", "불가"],
+    ["취소완료", "신청 또는 PIN 완료 전 매칭준비중 취소 완료", "해당 없음"]
   ],
   internalStates: [
     ["NONE", "거래없음", "거래신청 전"],
+    ["PRE_BUYER_WALLET_TERMS_ACCEPTED", "신청 전", "매수자 수령지갑 생성 및 조건부 해제 절차 동의 완료"],
+    ["PRE_SELLER_ACCOUNT_VERIFIED", "신청 전", "매도자 거래금액 선택 및 본인명의 계좌 1원 인증 완료"],
     ["REQUESTED_BUY", "거래신청", "매수 신청 등록"],
     ["REQUESTED_SELL", "거래신청", "매도 신청 등록"],
     ["MATCH_PREPARING", "매칭준비중", "동일 금액대 상대와 매칭"],
-    ["MATCH_MESSAGE_BUYER_SENT", "매칭준비중", "매수자 매칭 메시지 송신"],
-    ["MATCH_MESSAGE_SELLER_SENT", "매칭준비중", "매도자 매칭 메시지 송신"],
-    ["MATCH_TERMS_BUYER_SIGNED", "매칭준비중", "매수자 약관동의 및 PIN 서명"],
-    ["MATCH_TERMS_SELLER_SIGNED", "매칭준비중", "매도자 약관동의 및 PIN 서명"],
-    ["MATCH_CONFIRMED", "매칭확정", "양측 약관/PIN 완료"],
-    ["BUYER_WALLET_CREATED", "거래진행중", "매수자 USDT 수령 지갑 생성"],
-    ["SELLER_ACCOUNT_VERIFIED", "거래진행중", "매도자 원화 수취 계좌 1원 인증 완료"],
-    ["SELLER_USDT_SENT_PENDING", "거래진행중", "매도자 USDT 전송 대기 또는 확인 중"],
-    ["SELLER_USDT_CONFIRMED", "거래진행중", "매수자 지갑 입금 및 수수료 입금 확인"],
-    ["BUYER_KRW_TRANSFER_PROOF_SUBMITTED", "거래진행중", "매수자 이체확인증 등록"],
-    ["SELLER_KRW_CONFIRMED", "거래진행중", "매도자 원화 수취 확인"],
-    ["FOBLGATE_TRANSFER_REVIEW_COMPLETED", "거래진행중", "포블 이체확인증 검토 완료"],
-    ["BUYER_MNEMONIC_VIEWED", "거래진행중", "매수자 니모닉 열람"],
-    ["TRADE_COMPLETED", "거래완료", "매수자 지갑 확인 완료"],
+    ["BUYER_INTENT_MESSAGE_SENT", "매칭준비중", "매수자 거래 의사 메시지 송신"],
+    ["SELLER_INTENT_MESSAGE_SENT", "매칭준비중", "매도자 거래 의사 메시지 송신"],
+    ["BUYER_PIN_CONFIRMED", "매칭준비중", "매수자 약관동의 및 PIN 입력 완료"],
+    ["SELLER_PIN_CONFIRMED", "매칭준비중", "매도자 약관동의 및 PIN 입력 완료"],
+    ["MATCH_CONFIRMED", "매칭확정", "양측 PIN 및 필요 시 ARS 동의 완료"],
+    ["WALLET_ADDRESS_OPENED_TO_SELLER", "STEP1-1", "매수자 수령지갑과 포블 수수료 지갑 주소가 매도자에게 공개"],
+    ["USDT_AUTO_VERIFIED", "STEP1-2", "수령지갑과 포블 수수료 지갑 입금 자동검증 완료"],
+    ["KRW_ACCOUNT_OPENED_TO_BUYER", "STEP1-2", "매도자 원화 입금계좌가 매수자에게 공개"],
+    ["BUYER_KRW_PROOF_SUBMITTED", "STEP1-2", "매수자 이체확인증 등록 및 본인 이체 확인 동의 완료"],
+    ["SELLER_KRW_CONFIRMED", "STEP2", "매도자 원화 입금 확인 완료"],
+    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소 이체확인증 및 이상거래 검토 완료"],
+    ["MNEMONIC_OPEN_ENABLED", "STEP2", "매수자 니모닉 조회 버튼 활성화"],
+    ["BUYER_MNEMONIC_VIEWED", "거래완료", "매수자 니모닉 조회 및 거래완료 확정"],
+    ["TRADE_COMPLETED", "거래완료", "거래 종료"],
     ["CANCELED", "취소완료", "취소 처리"],
     ["DISPUTE_REVIEW", "분쟁검토", "분쟁 또는 예외 검토"]
   ],
@@ -222,23 +226,23 @@ const appData = {
     ["니모닉 열람", "열람 가능기간, PIN 검증, 접근 로그", "자동", "7일 만료 후 열람 차단"]
   ],
   approvals: [
-    ["STEP1. 매칭확정 확인", "시스템+운영자", "매칭확정 전", "ARS 동의/동의안함/응답없음"],
-    ["USDT 입금 지연 확인", "운영자", "제한시간(30분) 이내 미입금", "재진행/분쟁/취소검토"],
+    ["매칭확정 확인", "시스템+운영자", "매칭확정 전", "ARS 동의/동의안함/응답없음"],
+    ["STEP1-1 USDT 입금 지연 확인", "운영자", "제한시간(30분) 이내 미입금", "재진행/분쟁/취소검토"],
     ["수수료 입금 미확인", "운영자", "수수료 지갑 미입금", "재전송요청/보류"],
-    ["이체확인증 검토", "운영자", "매수자 확인증 등록", "정상/보완요청/분쟁"],
+    ["STEP1-2 이체확인증 검토", "운영자", "매수자 확인증 등록", "정상/보완요청/분쟁"],
     ["분쟁 검토", "운영자+준법 필요 시", "금액 불일치, 확인 불가", "정상처리/거래중단/법적대응 검토"],
     ["USDT 반환 요청 검토", "운영자+준법 필요 시", "원화 입금 문제로 매도자 반환 요청", "반환 가능/불가/추가증빙"]
   ],
   policies: {
     cancel: [
-      ["취소 가능 단계", ["거래신청: 가능", "매칭준비중: 양측 PIN 서명 전 가능", "매칭확정 이후: 운영자 분쟁/보류 처리만 가능"]],
-      ["개선안 취소 기준", ["동일 금액대 매칭 후 매칭준비중 진입", "내 거래 의사 메시지와 PIN 입력 전/미완료 상태에서는 매칭취소 가능", "양측 PIN 완료와 필요 시 ARS 동의 후 매칭확정", "매칭확정 이후 지갑주소 생성/공개 및 임의 취소 불가"]],
+      ["취소 가능 단계", ["거래신청: 가능", "매칭준비중: 양측 PIN 완료 전 가능", "매칭확정 이후: 운영자 분쟁/보류 처리만 가능"]],
+      ["매칭준비중 취소 기준", ["동일 금액대 매칭 후 매칭준비중 진입", "내 거래 의사 메시지와 PIN 입력 전/미완료 상태에서는 매칭취소 가능", "양측 PIN 완료와 필요 시 ARS 동의 후 매칭확정", "매칭확정 이후 지갑주소 생성/공개 및 임의 취소 불가"]],
       ["취소자/상대방 처리", ["거래신청 취소: 본인 거래없음", "매칭준비중 취소: 취소자는 거래없음, 상대방은 거래신청 복귀"]],
       ["취소 횟수 제한", ["일일 취소 허용 2회", "3회 취소 시도 시 당일 신규 거래신청 제한", "최근 7일 내 5회 이상 취소 시 운영자 검토"]],
       ["재신청 제한", ["매칭준비중 취소 2회 이상이면 30분간 동일 금액대 제한", "반복 노쇼 의심 시 운영자 검토 전까지 제한", "제한은 다음 날 00:00 자동 해제 가능"]]
     ],
     security: [
-      ["열람 제한", ["STEP5 진입 후, 이체확인 검토 완료 시 최초 열람 가능", "최초 열람 시점부터 7일간만 가능", "열람 시 거래 완료 확정", "열람 시 매수자가 본인 지갑 소유를 확인한 것으로 간주", "PIN 재입력 후 7일 내 최대 3회 권장"]],
+      ["열람 제한", ["STEP2에서 매도자 원화 확인과 거래소 이체확인증 검토 완료 시 최초 열람 가능", "최초 열람 시점부터 7일간만 가능", "열람 시 거래 완료 확정", "열람 시 매수자가 본인 지갑 소유를 확인한 것으로 간주", "PIN 재입력 후 7일 내 최대 3회 권장"]],
       ["암호화 조각화", ["매수자 PIN 조각", "매도자 PIN 조각", "포블 보안조각", "2-of-3 구조, 단독 조각 복호화 불가"]],
       ["복호화 권장 조합", ["매수자 PIN 조각 + 포블 보안조각만 실제 열람 허용 권장", "매도자 조각은 확정성 및 분쟁 증적 보조 용도", "매도자 PIN + 포블 보안조각은 운영상 금지 권장"]],
       ["접근 로그", ["요청 일시, 회원번호, 거래번호, IP, 디바이스", "PIN/본인확인 여부, 성공/실패/차단/만료", "전문 해시와 운영자 승인/거절 사유", "최소 5년 이상 보관 권장"]],
@@ -256,9 +260,9 @@ const appData = {
     trade: [
       ["거래 금액대", "500만원 / 1,000만원 / 2,000만원 / 5,000만원", "운영자", "금액대별 매칭 큐 기준"],
       ["거래 신청 가능 시간", "상시 또는 운영시간 제한", "운영자", "점검/리스크 상황 시 중지 가능"],
-      ["USDT 입금 제한시간", "30분", "운영자", "STEP3 지연 판단 기준"],
-      ["STEP별 제한시간", "STEP1/2/4 별도 설정", "운영자", "미진행 알림과 보류 기준"],
-      ["ARS 고객 동의", "사용", "운영자", "STEP1. 매칭확정 확인 조건"]
+      ["USDT 입금 제한시간", "30분", "운영자", "STEP1-1 지연 판단 기준"],
+      ["STEP별 제한시간", "매칭준비중/STEP1-1/STEP1-2/STEP2 별도 설정", "운영자", "미진행 알림과 보류 기준"],
+      ["ARS 고객 동의", "사용", "운영자", "매칭확정 확인 조건"]
     ],
     fees: [
       ["매수자 원화 추가 수수료", "없음", "정산 담당자", "매수자는 거래금액만 매도자에게 원화 이체"],
@@ -270,7 +274,7 @@ const appData = {
     ],
     content: [
       ["공지사항", "서비스 공지/점검/정책 변경", "운영자", "거래 화면과 게시판 노출"],
-      ["약관/유의사항", "매수/매도 약관 분리", "기획+준법", "STEP1 동의 문구 원천"],
+      ["약관/유의사항", "매수/매도 약관 분리", "기획+준법", "매칭준비중 동의 문구 원천"],
       ["FAQ", "입금 지연/반환/분쟁/니모닉", "CS", "고객센터 응대 기준"],
       ["메시지 템플릿", "상태메시지/메신저/ARS 문구", "기획+운영", "변경 이력 필수"],
       ["첨부파일 정책", "허용 확장자/용량/보관기간", "운영+보안", "이체확인증 관리 기준"]
@@ -346,10 +350,10 @@ const appData = {
     {
       id: "mnemonic-consent",
       title: "니모닉 열람 동의",
-      badge: "STEP5",
+      badge: "STEP2",
       purpose: "니모닉 열람 시 거래완료 확정, 열람 기간, 보관 책임을 고지하는 문서",
       sections: [
-        ["제1조 열람 조건", ["니모닉 열람은 이체확인 검토 완료 후 STEP5에서만 가능하다.", "운영자 검토가 필요한 거래는 보류 또는 분쟁 상태가 해소된 뒤 열람할 수 있다."]],
+        ["제1조 열람 조건", ["니모닉 열람은 매도자 원화 입금 확인과 거래소 이체확인증 검토가 완료된 STEP2에서만 가능하다.", "운영자 검토가 필요한 거래는 보류 또는 분쟁 상태가 해소된 뒤 열람할 수 있다."]],
         ["제2조 거래완료 확정", ["매수자가 니모닉을 열람하면 거래 완료가 확정되며, 매수자가 본인 지갑 소유를 확인한 것으로 기록된다.", "니모닉 열람 후에는 단순 변심 또는 보관 부주의를 이유로 거래를 취소할 수 없다."]],
         ["제3조 재열람 기간", ["니모닉은 최초 열람 시점부터 7일간만 재열람할 수 있으며, 7일 경과 후 재열람은 불가하다.", "7일 경과 후 니모닉 재열람을 위한 복호화/표시 정보는 삭제 또는 차단 처리된다."]],
         ["제4조 보관 권장", ["니모닉은 반드시 수기로 보관하거나 메타마스크 등 본인 외부 지갑에 복구/이전해 자산 소유를 확인해야 한다.", "거래번호, 지갑주소, TXID, 접근 로그는 분쟁/감사 목적의 보관정책에 따라 보관된다."]]
@@ -416,11 +420,10 @@ const appData = {
       purpose: "매수자/매도자가 따라야 할 단계별 사용 절차",
       sections: [
         ["STEP0 거래신청", ["거래금액을 선택해 매수 또는 매도 신청을 등록한다.", "동일 금액대 재신청 제한과 일일 취소 제한이 적용될 수 있다."]],
-        ["STEP1 매칭확정", ["상대방과 매칭되면 매칭 메시지, 약관/PIN, ARS 동의를 완료한다.", "매칭확정 확인 이후 임의 취소는 제한된다."]],
-        ["STEP2 지갑/계좌 준비", ["매수자는 수령지갑 생성에 동의하고, 매도자는 원화 수취 계좌 1원 인증을 완료한다."]],
-        ["STEP3 USDT 입금", ["매도자는 매수자 실제 수령 USDT와 포블 수수료 USDT를 각각 전송한다.", "제한시간 내 미입금 또는 수량 불일치는 보류/분쟁 대상이다."]],
-        ["STEP4 원화 이체", ["매수자는 매도자 계좌로 거래금액을 정확히 이체하고 이체확인증을 등록한다.", "이체확인증은 운영 검토와 매도자 확인을 거친다."]],
-        ["STEP5 니모닉 열람", ["매수자는 니모닉을 열람하고 외부 지갑 복구/이전으로 자산 소유를 확인한다.", "니모닉 최초 열람 후 7일간만 재열람 가능하다."]]
+        ["매칭준비중", ["상대방과 매칭되면 내 거래 의사 메시지, 약관/PIN, 필요 시 ARS 동의를 완료한다.", "양측 PIN 완료 전까지는 매칭취소가 가능하고, 매칭확정 이후 임의 취소는 제한된다."]],
+        ["STEP1-1 지갑주소 확인 및 USDT 전송", ["매도자는 매수자 수령지갑과 포블 수수료 지갑 주소를 확인한 뒤 USDT를 전송한다.", "제한시간 내 미입금 또는 수량 불일치는 보류/분쟁 대상이다."]],
+        ["STEP1-2 USDT 확인 및 원화 입금", ["매수자는 USDT 입금 자동검증 후 매도자 계좌로 거래금액을 정확히 이체하고 이체확인증을 등록한다.", "이체확인증은 운영 검토와 매도자 확인을 거친다."]],
+        ["STEP2 원화 확인 및 니모닉 열람", ["매도자 원화 입금 확인과 거래소 이체확인증 검토가 끝나면 매수자는 니모닉을 조회한다.", "니모닉 최초 열람 후 7일간만 재열람 가능하다."]]
       ]
     },
     {
@@ -584,7 +587,7 @@ const improvedMermaidSource = `sequenceDiagram
     participant Chain as 블록체인 네트워크
     participant Ops as 포블 운영자
 
-    Note over Buyer,Seller: 개선안: 신청 전 준비를 앞당기고 거래 중 화면은 역할별 STEP1/STEP2로 단순화한다.
+    Note over Buyer,Seller: 최종안: 신청 전 준비를 앞당기고 거래 중 화면은 STEP1-1, STEP1-2, STEP2로 진행한다.
 
     par 매수자 신청 전 준비
         Buyer->>Foblgate: 거래금액 선택
@@ -610,13 +613,13 @@ const improvedMermaidSource = `sequenceDiagram
         Foblgate-->>Seller: 상대방이 매칭을 취소했습니다.
     end
 
-    par 매수자 STEP1 앞부분 - 매칭준비중 확인
+    par 매수자 매칭준비중 확인
         Buyer->>Foblgate: [버튼] 내 거래 의사 메시지 보내기
         Foblgate->>Messenger: 매수 의사 메시지 생성
         Messenger-->>Seller: 매수자가 거래 의사를 보냈습니다.
         Buyer->>Foblgate: 약관 동의 및 PIN 입력
         Foblgate->>Foblgate: 매수자 PIN 검증 및 서명 저장
-    and 매도자 STEP1 앞부분 - 매칭준비중 확인
+    and 매도자 매칭준비중 확인
         Seller->>Foblgate: [버튼] 내 거래 의사 메시지 보내기
         Foblgate->>Messenger: 매도 의사 메시지 생성
         Messenger-->>Buyer: 매도자가 거래 의사를 보냈습니다.
@@ -637,10 +640,10 @@ const improvedMermaidSource = `sequenceDiagram
     Foblgate->>BuyWallet: 매수자 소유 수령지갑 생성
     BuyWallet-->>Foblgate: 지갑주소 및 니모닉 생성
     Foblgate->>Foblgate: 니모닉 암호화 보관
-    Foblgate-->>Seller: 매도자 STEP1 - 매수자 수령지갑/포블 수수료 지갑주소 표시
-    Foblgate-->>Buyer: 매수자 STEP1 - 수령지갑 USDT 입금 대기 상태 표시
+    Foblgate-->>Seller: STEP1-1 - 매수자 수령지갑/포블 수수료 지갑주소 표시
+    Foblgate-->>Buyer: STEP1-1 - 수령지갑 USDT 입금 대기 상태 표시
 
-    par 매도자 STEP1 - USDT 입금
+    par STEP1-1 - USDT 입금
         Seller->>BuyWallet: 매수자 실제 수령 USDT 전송
         Seller->>FeeWallet: 포블 수수료 USDT 전송
     and 시스템 자동검증
@@ -650,8 +653,8 @@ const improvedMermaidSource = `sequenceDiagram
     end
 
     alt USDT 및 수수료 정상 검증
-        Foblgate-->>Seller: STEP1 입금확인 완료
-        Foblgate-->>Buyer: USDT 입금 확인 완료, 매도자 원화 계좌 오픈
+        Foblgate-->>Seller: STEP1-1 입금확인 완료
+        Foblgate-->>Buyer: STEP1-2 - USDT 입금 확인 완료, 매도자 원화 계좌 오픈
         Buyer->>Seller: 원화 이체
         Buyer->>Foblgate: 이체확인증 등록
         Foblgate-->>Buyer: 본인이 이체한 거래가 틀림없습니까? 거래소 검토 동의
@@ -663,8 +666,8 @@ const improvedMermaidSource = `sequenceDiagram
         Ops->>Foblgate: 보완요청/보류/분쟁 검토
     end
 
-    Foblgate-->>Seller: 매도자 STEP2 - 원화 입금 확인 화면
-    Foblgate-->>Buyer: 매수자 STEP2 - 상대방 확인 및 거래소 검토 대기
+    Foblgate-->>Seller: STEP2 - 원화 입금 확인 화면
+    Foblgate-->>Buyer: STEP2 - 상대방 확인 및 거래소 검토 대기
     Seller->>Seller: 본인 계좌에서 원화 입금 여부 확인
     Seller->>Foblgate: [버튼] 원화 입금 확인 완료
     Ops->>Foblgate: 이체확인증 및 이상거래 검토
@@ -683,9 +686,10 @@ const improvedMermaidSource = `sequenceDiagram
         Ops->>Foblgate: 이체확인증/TXID/로그 기반 분쟁 및 반환 검토
     end`;
 
+const legacyMermaidSource = currentMermaidSource;
+
 const sequenceVariants = [
-  ["current", "기존 시퀀스", "정책 검토용 기본 흐름", currentMermaidSource],
-  ["improved", "개선 시퀀스", "신청 전 준비를 앞당긴 UX 흐름", improvedMermaidSource]
+  ["improved", "최종 거래 흐름", "개선된 단일 정책 기준 흐름", improvedMermaidSource]
 ];
 
 const improvedSteps = [
@@ -735,8 +739,8 @@ const improvedSteps = [
     exceptions: ["ARS 미동의 또는 고액/위험 거래 재확인 실패 시 차단", "확정 이후 원화/USDT 문제는 분쟁검토로 전환"]
   },
   {
-    id: "improved-seller-step1",
-    index: "매도자 STEP1",
+    id: "improved-step1-1",
+    index: "STEP1-1",
     title: "지갑주소 확인과 USDT 전송",
     state: "거래진행중",
     summary: "매도자는 매수자 수령지갑 주소와 포블 수수료 지갑 주소를 확인하고, 실제 수령 USDT와 포블 수수료 USDT를 전송한다.",
@@ -750,8 +754,8 @@ const improvedSteps = [
     exceptions: ["USDT 미입금 또는 수수료 미입금", "수량 부족/초과입금", "네트워크 불일치 또는 TXID 확인 불가"]
   },
   {
-    id: "improved-buyer-step1",
-    index: "매수자 STEP1",
+    id: "improved-step1-2",
+    index: "STEP1-2",
     title: "USDT 확인과 원화 입금",
     state: "거래진행중",
     summary: "USDT 자동검증이 완료되면 매수자에게 매도자 원화계좌가 열리고, 매수자는 이체확인증과 본인 이체 확인 동의 후 입금완료 메시지를 보낸다.",
@@ -798,10 +802,10 @@ const improvedSteps = [
 
 const improvedPolicyImpact = {
   roleSteps: [
-    ["매도자 STEP1", "매칭준비중 확인 + USDT 입금 수행/검증", ["양측 PIN 완료 전까지 매칭취소 가능", "내 거래 의사 메시지 보내기, 약관 동의, PIN 입력 완료", "양측 PIN 완료 후 취소불가 상태로 전환", "매수자 수령지갑 주소와 포블 수수료 지갑 주소 확인", "지정 수량과 네트워크로 USDT 전송", "수령지갑/수수료 지갑 자동검증 완료까지 같은 화면에서 확인"]],
-    ["매도자 STEP2", "원화 수취 확인/완료 대기", ["매수자 입금완료 메시지 수신", "본인 계좌에서 실제 입금 여부 직접 확인", "입금 확인 완료 버튼 클릭 후 상대방 지갑 확인 및 거래완료 대기"]],
-    ["매수자 STEP1", "매칭준비중 확인 + USDT 확인/원화 입금", ["양측 PIN 완료 전까지 매칭취소 가능", "내 거래 의사 메시지 보내기, 약관 동의, PIN 입력 완료", "양측 PIN 완료 후 취소불가 상태로 전환", "수령지갑 USDT 입금 자동검증 확인", "검증 후 매도자 원화 입금계좌 오픈", "이체확인증 등록, 본인 이체 확인 동의, 입금완료 메시지 송출"]],
-    ["매수자 STEP2", "니모닉 열람/거래완료", ["매도자 원화 입금확인 완료 대기", "거래소 이체확인증 검토 완료 대기", "니모닉 오픈 버튼 활성화 후 조회하면 거래완료 전환"]]
+    ["STEP1-1", "매도자 중심: 지갑주소 확인 + USDT 입금 수행/검증", ["양측 PIN 완료 전까지 매칭취소 가능", "내 거래 의사 메시지 보내기, 약관 동의, PIN 입력 완료", "양측 PIN 완료 후 취소불가 상태로 전환", "매수자 수령지갑 주소와 포블 수수료 지갑 주소 확인", "지정 수량과 네트워크로 USDT 전송", "수령지갑/수수료 지갑 자동검증 완료까지 같은 화면에서 확인"]],
+    ["STEP1-2", "매수자 중심: USDT 확인 + 원화 입금", ["수령지갑 USDT 입금 자동검증 확인", "검증 후 매도자 원화 입금계좌 오픈", "이체확인증 등록", "본인 이체 확인 동의", "입금완료 메시지 송출"]],
+    ["STEP2", "매도자 확인: 원화 수취 확인/완료 대기", ["매수자 입금완료 메시지 수신", "본인 계좌에서 실제 입금 여부 직접 확인", "입금 확인 완료 버튼 클릭 후 상대방 지갑 확인 및 거래완료 대기"]],
+    ["STEP2", "매수자 확인: 니모닉 열람/거래완료", ["매도자 원화 입금확인 완료 대기", "거래소 이체확인증 검토 완료 대기", "니모닉 오픈 버튼 활성화 후 조회하면 거래완료 전환"]]
   ],
   states: [
     ["PRE_BUYER_WALLET_TERMS_ACCEPTED", "신청 전", "매수자가 수령지갑 생성 약관에 동의했지만 실제 지갑은 아직 생성하지 않은 상태"],
@@ -812,25 +816,25 @@ const improvedPolicyImpact = {
     ["BUYER_PIN_CONFIRMED", "매칭준비중", "매수자가 약관 동의와 PIN 입력을 완료한 상태"],
     ["SELLER_PIN_CONFIRMED", "매칭준비중", "매도자가 약관 동의와 PIN 입력을 완료한 상태"],
     ["MATCH_CONFIRMED", "매칭확정", "양측 PIN과 필요 시 ARS 동의까지 완료되어 취소불가 및 지갑주소 생성이 가능한 상태"],
-    ["WALLET_ADDRESS_OPENED_TO_SELLER", "매도자 STEP1", "매수자 수령지갑 주소와 포블 수수료 지갑 주소가 매도자에게 노출된 상태"],
-    ["USDT_AUTO_VERIFIED", "매수자 STEP1", "수령지갑 입금과 포블 수수료 지갑 입금이 자동검증된 상태"],
-    ["KRW_ACCOUNT_OPENED_TO_BUYER", "매수자 STEP1", "USDT 검증 완료 후 매도자 원화 입금계좌가 매수자에게 공개된 상태"],
-    ["BUYER_KRW_PROOF_SUBMITTED", "매수자 STEP1", "매수자가 이체확인증을 등록하고 본인 이체 확인 동의를 완료한 상태"],
-    ["SELLER_KRW_CONFIRMED", "매도자 STEP2", "매도자가 본인 계좌에서 원화 입금을 확인하고 완료 버튼을 누른 상태"],
-    ["TRANSFER_REVIEW_COMPLETED", "매수자 STEP2", "거래소가 이체확인증과 이상거래 검토를 완료한 상태"],
-    ["MNEMONIC_OPEN_ENABLED", "매수자 STEP2", "매도자 확인과 거래소 검토가 모두 끝나 니모닉 조회 버튼이 활성화된 상태"]
+    ["WALLET_ADDRESS_OPENED_TO_SELLER", "STEP1-1", "매수자 수령지갑 주소와 포블 수수료 지갑 주소가 매도자에게 노출된 상태"],
+    ["USDT_AUTO_VERIFIED", "STEP1-2", "수령지갑 입금과 포블 수수료 지갑 입금이 자동검증된 상태"],
+    ["KRW_ACCOUNT_OPENED_TO_BUYER", "STEP1-2", "USDT 검증 완료 후 매도자 원화 입금계좌가 매수자에게 공개된 상태"],
+    ["BUYER_KRW_PROOF_SUBMITTED", "STEP1-2", "매수자가 이체확인증을 등록하고 본인 이체 확인 동의를 완료한 상태"],
+    ["SELLER_KRW_CONFIRMED", "STEP2", "매도자가 본인 계좌에서 원화 입금을 확인하고 완료 버튼을 누른 상태"],
+    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소가 이체확인증과 이상거래 검토를 완료한 상태"],
+    ["MNEMONIC_OPEN_ENABLED", "STEP2", "매도자 확인과 거래소 검토가 모두 끝나 니모닉 조회 버튼이 활성화된 상태"]
   ],
   buttons: [
     ["공통", "매칭취소", "매칭준비중", "본인은 거래없음으로 전환하고 상대방 신청 건은 재대기", "양측 PIN 완료 전"],
-    ["공통", "내 거래 의사 메시지 보내기", "STEP1 앞부분", "상대방에게 거래 진행 의사 메시지 송출", "매칭준비중 진입 후 1회"],
-    ["공통", "약관 동의 및 PIN 입력", "STEP1 앞부분", "약관 동의와 PIN 검증 결과 저장", "양측 거래 의사 메시지 송신 후"],
-    ["매도자", "USDT 입금정보 확인", "STEP1", "매수자 수령지갑/포블 수수료 지갑 주소 확인", "매칭확정 및 지갑 생성 완료"],
-    ["매도자", "입금 상태 새로고침", "STEP1", "수령지갑/수수료 지갑 자동검증 상태 재조회", "USDT 전송 후 검증 대기"],
+    ["공통", "내 거래 의사 메시지 보내기", "매칭준비중", "상대방에게 거래 진행 의사 메시지 송출", "매칭준비중 진입 후 1회"],
+    ["공통", "약관 동의 및 PIN 입력", "매칭준비중", "약관 동의와 PIN 검증 결과 저장", "양측 거래 의사 메시지 송신 후"],
+    ["매도자", "USDT 입금정보 확인", "STEP1-1", "매수자 수령지갑/포블 수수료 지갑 주소 확인", "매칭확정 및 지갑 생성 완료"],
+    ["매도자", "입금 상태 새로고침", "STEP1-1", "수령지갑/수수료 지갑 자동검증 상태 재조회", "USDT 전송 후 검증 대기"],
     ["매도자", "원화 입금 확인 완료", "STEP2", "본인 계좌 원화 수취 확인 저장", "매수자 입금완료 메시지 수신 후"],
-    ["매수자", "USDT 입금 확인", "STEP1", "수령지갑 입금 상태 확인", "자동검증 완료 전까지 대기"],
-    ["매수자", "원화 계좌 확인", "STEP1", "매도자 본인명의 원화 수취계좌 확인", "USDT 및 수수료 검증 완료 후"],
-    ["매수자", "이체확인증 등록", "STEP1", "원화 이체 증빙 첨부", "원화 계좌 오픈 후"],
-    ["매수자", "입금을 완료했습니다", "STEP1", "본인 이체 확인 동의 후 매도자에게 메시지 송출", "이체확인증 등록 및 동의 완료 후"],
+    ["매수자", "USDT 입금 확인", "STEP1-2", "수령지갑 입금 상태 확인", "자동검증 완료 전까지 대기"],
+    ["매수자", "원화 계좌 확인", "STEP1-2", "매도자 본인명의 원화 수취계좌 확인", "USDT 및 수수료 검증 완료 후"],
+    ["매수자", "이체확인증 등록", "STEP1-2", "원화 이체 증빙 첨부", "원화 계좌 오픈 후"],
+    ["매수자", "입금을 완료했습니다", "STEP1-2", "본인 이체 확인 동의 후 매도자에게 메시지 송출", "이체확인증 등록 및 동의 완료 후"],
     ["매수자", "니모닉 조회", "STEP2", "니모닉 표시 및 거래완료 전환", "매도자 입금확인 완료 + 거래소 검토 완료"]
   ],
   messages: [
@@ -863,10 +867,10 @@ const improvedPolicyImpact = {
   ]
 };
 
-let selectedStepId = "request";
+let selectedStepId = "improved-precheck";
 let selectedRole = "all";
 let selectedPolicyDocId = "terms";
-let selectedSequenceId = "current";
+let selectedSequenceId = "improved";
 
 function escapeHtml(value) {
   return String(value)
@@ -912,7 +916,7 @@ function getSelectedMermaidSource() {
 }
 
 function getActiveSteps() {
-  return selectedSequenceId === "improved" ? improvedSteps : appData.steps;
+  return improvedSteps;
 }
 
 function syncSelectedStep() {
@@ -975,7 +979,7 @@ function getPolicyPopup(doc) {
       subtitle: "니모닉을 열람하면 거래 완료로 확정됩니다.",
       lead: "니모닉은 USDT 수령지갑을 복구할 수 있는 가장 중요한 정보입니다. 열람 전에 보관 방법을 준비해주세요.",
       sections: [
-        ["열람 가능 조건", ["이체확인 검토가 완료된 STEP5에서만 열람할 수 있습니다.", "보류 또는 분쟁 상태에서는 운영자 검토가 끝난 뒤 열람할 수 있습니다."]],
+        ["열람 가능 조건", ["매도자 원화 입금 확인과 거래소 이체확인증 검토가 완료된 STEP2에서만 열람할 수 있습니다.", "보류 또는 분쟁 상태에서는 운영자 검토가 끝난 뒤 열람할 수 있습니다."]],
         ["열람 후 효과", ["니모닉을 열람하면 거래가 완료됩니다.", "열람 기록은 고객님이 수령지갑 소유를 확인한 기록으로 남습니다."]],
         ["재열람 기간", ["최초 열람 시점부터 7일간만 재열람할 수 있습니다.", "7일이 지나면 니모닉 재열람은 불가하며 표시/복호화 정보는 삭제 또는 차단됩니다."]]
       ],
@@ -999,7 +1003,7 @@ function getPolicyPopup(doc) {
     },
     guide: {
       title: "USDT 안전거래 이용방법",
-      subtitle: "거래는 신청, 확정, 입금, 확인, 니모닉 열람 순서로 진행됩니다.",
+      subtitle: "거래는 신청 전 준비, 매칭준비중, 매칭확정, STEP1-1, STEP1-2, STEP2 순서로 진행됩니다.",
       lead: "각 단계에서 해야 할 일을 확인하고 다음 단계로 이동해주세요.",
       sections: [
         ["거래 신청", ["거래금액을 선택해 매수 또는 매도 신청을 등록합니다.", "동일 금액대 재신청 제한과 일일 취소 제한이 적용될 수 있습니다."]],
@@ -1419,9 +1423,8 @@ function renderKpis() {
 function renderSequenceTabs() {
   const target = document.getElementById("sequenceVariant");
   if (!target) return;
-  target.innerHTML = sequenceVariants
-    .map(([id, label, description]) => `<button class="${selectedSequenceId === id ? "active" : ""}" type="button" data-sequence="${id}" title="${escapeHtml(description)}">${escapeHtml(label)}</button>`)
-    .join("");
+  const [, label, description] = getSelectedSequenceVariant();
+  target.innerHTML = `<span class="sequence-mode-label" title="${escapeHtml(description)}">${escapeHtml(label)}</span>`;
 }
 
 function renderSteps() {
@@ -1528,39 +1531,44 @@ function renderStateTables() {
 }
 
 function renderButtonTables() {
+  const toButtonRow = (row) => [row[1], row[2], row[4], row[3], row[0] === "공통" ? "공통 버튼" : row[0]];
+  const buyerRows = improvedPolicyImpact.buttons.filter((row) => row[0] === "공통" || row[0] === "매수자").map(toButtonRow);
+  const sellerRows = improvedPolicyImpact.buttons.filter((row) => row[0] === "공통" || row[0] === "매도자").map(toButtonRow);
   document.getElementById("buttonTables").innerHTML = `
     <div>
       <h3>매수자 버튼</h3>
-      <div class="table-wrap">${renderTable(["버튼명", "노출 단계", "활성화 조건", "클릭 시 동작", "비활성화 조건"], appData.buttons.buyer)}</div>
+      <div class="table-wrap">${renderTable(["버튼명", "노출 단계", "활성화 조건", "클릭 시 동작", "구분"], buyerRows)}</div>
     </div>
     <div>
       <h3>매도자 버튼</h3>
-      <div class="table-wrap">${renderTable(["버튼명", "노출 단계", "활성화 조건", "클릭 시 동작", "비활성화 조건"], appData.buttons.seller)}</div>
+      <div class="table-wrap">${renderTable(["버튼명", "노출 단계", "활성화 조건", "클릭 시 동작", "구분"], sellerRows)}</div>
     </div>
   `;
   document.getElementById("improvedButtonTable").innerHTML = renderTable(["대상", "버튼명", "노출 단계", "클릭 시 동작", "활성화 조건"], improvedPolicyImpact.buttons);
 }
 
 function renderMessageTables() {
-  document.getElementById("statusMessageTable").innerHTML = renderTable(["이벤트", "매수자 상태메시지", "매도자 상태메시지"], appData.statusMessages);
-  document.getElementById("messengerTable").innerHTML = renderTable(["발생 조건", "수신자", "메신저 문구"], appData.messenger);
+  const statusRows = improvedPolicyImpact.messages.map(([event, recipient, message]) => [
+    event,
+    recipient === "매수자" || recipient === "양측" ? message : "-",
+    recipient === "매도자" || recipient === "양측" ? message : "-"
+  ]);
+  const messengerRows = improvedPolicyImpact.messages.filter(([, recipient]) => recipient !== "양측");
+  document.getElementById("statusMessageTable").innerHTML = renderTable(["이벤트", "매수자 상태메시지", "매도자 상태메시지"], statusRows);
+  document.getElementById("messengerTable").innerHTML = renderTable(["발생 조건", "수신자", "메신저 문구"], messengerRows);
   document.getElementById("improvedMessageTable").innerHTML = renderTable(["발생 조건", "수신자", "메시지 문구"], improvedPolicyImpact.messages);
 }
 
 function renderMonitoring() {
   const groups = [
-    ["자동", "자동 감시", "bot"],
-    ["수동", "수동 확인", "hand"],
-    ["자동+수동", "자동+수동", "sliders-horizontal"],
-    ["failure", "실패 시 조치", "siren"]
+    ["사전/매칭", "사전/매칭", "git-branch", improvedPolicyImpact.monitoring.slice(0, 7)],
+    ["자산 검증", "자산 검증", "bot", improvedPolicyImpact.monitoring.slice(7, 10)],
+    ["원화/증빙", "원화/증빙", "hand", improvedPolicyImpact.monitoring.slice(10, 12)],
+    ["완료/보안", "완료/보안", "shield-check", improvedPolicyImpact.monitoring.slice(12)]
   ];
   document.getElementById("monitoringBoard").innerHTML = groups
-    .map(([key, title, iconName]) => {
-      const items =
-        key === "failure"
-          ? appData.monitoring
-          : appData.monitoring.filter((item) => item[2] === key);
-      return `
+    .map(
+      ([, title, iconName, items]) => `
         <div class="kanban-column">
           <h3>${icon(iconName)} ${escapeHtml(title)}</h3>
           ${items
@@ -1568,14 +1576,14 @@ function renderMonitoring() {
               (item) => `
                 <div class="monitor-card" data-searchable>
                   <strong>${escapeHtml(item[0])}</strong>
-                  <span>${escapeHtml(key === "failure" ? item[3] : item[1])}</span>
+                  <span>${escapeHtml(item[1])}</span>
                 </div>
               `
             )
             .join("")}
         </div>
-      `;
-    })
+      `
+    )
     .join("");
   document.getElementById("approvalTable").innerHTML = renderTable(["승인/검토명", "담당", "트리거", "결과값"], appData.approvals);
   document.getElementById("improvedMonitoringTable").innerHTML = renderTable(["항목", "검토 기준", "결과/차단"], improvedPolicyImpact.monitoring);

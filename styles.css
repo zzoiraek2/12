@@ -895,6 +895,16 @@ input {
   font-size: 17px;
 }
 
+.section-panel > h3 {
+  margin: 0 20px 12px;
+  font-size: 17px;
+}
+
+.section-panel > .table-wrap {
+  width: auto;
+  margin: 0 20px 20px;
+}
+
 #monitoring > h3,
 #backend > h3,
 #operations > h3 {

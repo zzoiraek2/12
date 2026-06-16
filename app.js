@@ -1472,13 +1472,40 @@ async function renderMermaid() {
     diagram.classList.remove("mermaid");
     diagram.innerHTML = result.svg || result;
     if (typeof result.bindFunctions === "function") result.bindFunctions(diagram);
+    settleCurrentHashScroll();
   } catch (error) {
     console.error("Mermaid render failed", error);
     showMermaidFallback("Mermaid 파일은 로드되었지만 시퀀스 렌더링 중 오류가 발생해 원문을 표시합니다. 브라우저 콘솔의 'Mermaid render failed' 메시지를 확인해 주세요.");
   }
 }
 
+function scrollToSection(id, behavior = "smooth") {
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ block: "start", behavior });
+}
+
+function settleCurrentHashScroll() {
+  const id = window.location.hash.slice(1);
+  if (!id) return;
+  [0, 250, 800].forEach((delay) => {
+    window.setTimeout(() => scrollToSection(id, "auto"), delay);
+  });
+}
+
 function wireInteractions() {
+  document.querySelector("nav").addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
+    const id = link.getAttribute("href").slice(1);
+    if (!document.getElementById(id)) return;
+    event.preventDefault();
+    history.pushState(null, "", `#${id}`);
+    scrollToSection(id);
+  });
+
+  window.addEventListener("hashchange", settleCurrentHashScroll);
+
   document.getElementById("stepRail").addEventListener("click", (event) => {
     const card = event.target.closest("[data-step]");
     if (!card) return;
@@ -1574,6 +1601,7 @@ function boot() {
   renderBackend();
   wireInteractions();
   replaceIcons();
+  settleCurrentHashScroll();
 }
 
 boot();

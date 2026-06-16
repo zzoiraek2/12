@@ -219,6 +219,7 @@ input {
 .section-panel {
   min-width: 0;
   max-width: 100%;
+  scroll-margin-top: 112px;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;

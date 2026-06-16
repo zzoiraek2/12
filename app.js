@@ -466,7 +466,7 @@ const appData = {
   ]
 };
 
-const mermaidSource = `sequenceDiagram
+const currentMermaidSource = `sequenceDiagram
     autonumber
     actor Buyer as USDT 매수자
     actor Seller as USDT 매도자
@@ -571,9 +571,105 @@ const mermaidSource = `sequenceDiagram
         Ops->>Foblgate: 증빙/로그 기반 분쟁 및 반환 가능 여부 검토
     end`;
 
+const improvedMermaidSource = `sequenceDiagram
+    autonumber
+    actor Buyer as USDT 매수자
+    actor Seller as USDT 매도자
+    participant Foblgate as 포블거래소
+    participant Queue as 거래신청/매칭 큐
+    participant Messenger as 상태메시지/메신저
+    participant BuyWallet as 매수자 USDT 지갑
+    participant FeeWallet as 포블 수수료 지갑
+    participant Chain as 블록체인 네트워크
+    participant Ops as 포블 운영자
+
+    Note over Buyer,Seller: 개선안: 신청 전 준비를 앞당겨 매칭 후 진행 대기시간을 줄인다.
+
+    par 매수자 신청 전 준비
+        Buyer->>Foblgate: 거래금액 선택
+        Buyer->>Foblgate: 수령지갑 생성 약관 동의
+        Foblgate-->>Buyer: 지갑은 매칭확정 후 생성됨을 안내
+    and 매도자 신청 전 준비
+        Seller->>Foblgate: 거래금액 선택
+        Seller->>Foblgate: 원화 수취계좌 등록 및 1원 인증
+        Foblgate-->>Seller: 인증 완료 계좌로만 원화 수취 가능 안내
+    end
+
+    Buyer->>Foblgate: [버튼] USDT 매수 신청
+    Foblgate->>Queue: REQUESTED_BUY 등록
+    Seller->>Foblgate: [버튼] USDT 매도 신청
+    Foblgate->>Queue: 동일 금액대 매칭 후보 확인
+    Foblgate->>Foblgate: 상태 변경: MATCH_PREPARING
+    Foblgate-->>Buyer: 상대방 매칭, 의사 확인 요청
+    Foblgate-->>Seller: 상대방 매칭, 의사 확인 요청
+
+    par 양측 의사 확인
+        Buyer->>Foblgate: 매칭확정 동의 및 PIN 입력
+        Foblgate->>Foblgate: 매수자 PIN 검증 및 서명 저장
+    and 매도자 의사 확인
+        Seller->>Foblgate: 매칭확정 동의 및 PIN 입력
+        Foblgate->>Foblgate: 매도자 PIN 검증 및 서명 저장
+    end
+
+    opt 고액/위험 징후 재확인
+        Foblgate->>Ops: ARS 고객 동의 대상 생성
+        Ops->>Buyer: 거래확정 확인 ARS
+        Ops->>Seller: 거래확정 확인 ARS
+        Ops->>Foblgate: 동의/동의안함/응답없음 결과 저장
+    end
+
+    Foblgate->>Foblgate: 상태 변경: MATCH_CONFIRMED
+    Foblgate->>BuyWallet: 매수자 소유 수령지갑 생성
+    BuyWallet-->>Foblgate: 지갑주소 및 니모닉 생성
+    Foblgate->>Foblgate: 니모닉 암호화 보관
+    Foblgate-->>Seller: 매수자 수령지갑 주소 및 USDT 입금 상태창 표시
+    Foblgate-->>Buyer: 수령지갑 USDT 입금 대기 상태 표시
+
+    par 매도자 USDT 전송
+        Seller->>BuyWallet: 매수자 실제 수령 USDT 전송
+        Seller->>FeeWallet: 포블 수수료 USDT 전송
+    and 자동검증
+        Foblgate->>Chain: 수령지갑 입금 확인
+        Foblgate->>Chain: 수수료 지갑 입금 확인
+        Chain-->>Foblgate: TXID/수량/네트워크 검증 결과
+    end
+
+    alt USDT 및 수수료 정상 검증
+        Foblgate-->>Buyer: USDT 입금 확인 완료, 매도자 원화 계좌 표시
+        Buyer->>Seller: 원화 이체
+        Buyer->>Foblgate: 이체확인증 등록
+        Foblgate-->>Seller: 상대방 입금 확인 요청
+    else USDT 지연/수량 불일치
+        Foblgate->>Ops: 입금 지연/수량 불일치 알림
+        Ops->>Foblgate: 보완요청/보류/분쟁 검토
+    end
+
+    Seller->>Seller: 본인 계좌에서 원화 입금 여부 확인
+    Seller->>Foblgate: [버튼] 원화 입금 확인 완료
+    Ops->>Foblgate: 이체확인증 및 이상거래 검토
+
+    alt 원화 수취 및 증빙 정상
+        Foblgate-->>Buyer: 매도자 원화 입금 확인 완료 메시지
+        Buyer->>Foblgate: STEP5 PIN 재입력
+        Foblgate-->>Buyer: 니모닉 열람
+        Foblgate->>Foblgate: 니모닉 열람 시 거래완료 확정
+        Foblgate-->>Buyer: 거래가 종료되었습니다.
+        Foblgate-->>Seller: 거래가 종료되었습니다.
+    else 원화 미입금/증빙 불일치
+        Foblgate->>Ops: DISPUTE_REVIEW 전환
+        Seller->>Ops: 원화 입금 문제로 USDT 반환 요청
+        Ops->>Foblgate: 이체확인증/TXID/로그 기반 분쟁 및 반환 검토
+    end`;
+
+const sequenceVariants = [
+  ["current", "기존 시퀀스", "정책 검토용 기본 흐름", currentMermaidSource],
+  ["improved", "개선 시퀀스", "신청 전 준비를 앞당긴 UX 흐름", improvedMermaidSource]
+];
+
 let selectedStepId = "request";
 let selectedRole = "all";
 let selectedPolicyDocId = "terms";
+let selectedSequenceId = "current";
 
 function escapeHtml(value) {
   return String(value)
@@ -608,6 +704,14 @@ function list(items) {
 
 function icon(name) {
   return `<i data-lucide="${name}"></i>`;
+}
+
+function getSelectedSequenceVariant() {
+  return sequenceVariants.find(([id]) => id === selectedSequenceId) || sequenceVariants[0];
+}
+
+function getSelectedMermaidSource() {
+  return getSelectedSequenceVariant()[3];
 }
 
 function popupList(items, className = "popup-list") {
@@ -1103,6 +1207,14 @@ function renderKpis() {
     .join("");
 }
 
+function renderSequenceTabs() {
+  const target = document.getElementById("sequenceVariant");
+  if (!target) return;
+  target.innerHTML = sequenceVariants
+    .map(([id, label, description]) => `<button class="${selectedSequenceId === id ? "active" : ""}" type="button" data-sequence="${id}" title="${escapeHtml(description)}">${escapeHtml(label)}</button>`)
+    .join("");
+}
+
 function renderSteps() {
   document.getElementById("roleFilter").innerHTML = [
     ["all", "전체"],
@@ -1457,8 +1569,12 @@ function showMermaidFallback(message) {
 async function renderMermaid() {
   const diagram = document.getElementById("mermaidDiagram");
   const source = document.getElementById("mermaidSourceView");
+  const mermaidSource = getSelectedMermaidSource();
   diagram.textContent = mermaidSource;
   source.textContent = mermaidSource;
+  diagram.classList.add("mermaid");
+  diagram.removeAttribute("data-processed");
+  document.getElementById("mermaidFallbackNotice").classList.add("hidden");
 
   if (!window.mermaid || typeof window.mermaid.render !== "function") {
     showMermaidFallback("Mermaid 렌더러를 찾지 못해 시퀀스 원문을 표시합니다. GitHub Pages에는 vendor/mermaid.min.js 파일이 index.html과 같은 배포 경로 기준으로 있어야 합니다.");
@@ -1505,6 +1621,14 @@ function wireInteractions() {
   });
 
   window.addEventListener("hashchange", settleCurrentHashScroll);
+
+  document.getElementById("sequenceVariant").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-sequence]");
+    if (!button) return;
+    selectedSequenceId = button.dataset.sequence;
+    renderSequenceTabs();
+    renderMermaid();
+  });
 
   document.getElementById("stepRail").addEventListener("click", (event) => {
     const card = event.target.closest("[data-step]");
@@ -1573,10 +1697,12 @@ function download(filename, content, type) {
 }
 
 function makeMarkdown() {
+  const [sequenceId, sequenceLabel, sequenceDescription] = getSelectedSequenceVariant();
+  const mermaidSource = getSelectedMermaidSource();
   const stepLines = appData.steps
     .map((step) => `### ${step.index} ${step.title}\n- 상태: ${step.state}\n- 매수자: ${step.buyer.join(" / ")}\n- 매도자: ${step.seller.join(" / ")}\n- 완료 조건: ${step.completion}`)
     .join("\n\n");
-  return `# USDT 안전거래 정책 분석 요약\n\n## 목적\n고객 경험 순서, 시스템 상태, 버튼 동작, 메신저 문구, 포블 모니터링/승인 포인트를 한 화면에서 해석하기 위한 개발 산출물입니다.\n\n## STEP 상세\n\n${stepLines}\n\n## Mermaid\n\n\`\`\`mermaid\n${mermaidSource}\n\`\`\`\n`;
+  return `# USDT 안전거래 정책 분석 요약\n\n## 목적\n고객 경험 순서, 시스템 상태, 버튼 동작, 메신저 문구, 포블 모니터링/승인 포인트를 한 화면에서 해석하기 위한 개발 산출물입니다.\n\n## 선택 시퀀스\n- ID: ${sequenceId}\n- 이름: ${sequenceLabel}\n- 설명: ${sequenceDescription}\n\n## STEP 상세\n\n${stepLines}\n\n## Mermaid\n\n\`\`\`mermaid\n${mermaidSource}\n\`\`\`\n`;
 }
 
 function replaceIcons() {
@@ -1586,6 +1712,7 @@ function replaceIcons() {
 function boot() {
   renderNavigation();
   renderKpis();
+  renderSequenceTabs();
   renderMermaid();
   renderSteps();
   renderStateTables();

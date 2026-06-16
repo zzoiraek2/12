@@ -293,6 +293,19 @@ input {
   font-size: 22px;
 }
 
+.heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.sequence-tabs button {
+  min-width: 108px;
+}
+
 .mermaid-wrap {
   max-width: 100%;
   min-height: 420px;
@@ -1179,5 +1192,10 @@ code {
   .detail-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .heading-actions {
+    justify-content: flex-start;
+    width: 100%;
   }
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>USDT 안전거래 정책 분석</title>
-    <link rel="stylesheet" href="./styles.css?v=20260616-16" />
+    <link rel="stylesheet" href="./styles.css?v=20260616-17" />
     <script src="./vendor/mermaid.min.js?v=20260616-1"></script>
     <script src="./vendor/lucide.min.js?v=20260616-1"></script>
   </head>
@@ -44,10 +44,13 @@
               <p class="eyebrow">전체 시퀀스</p>
               <h2>거래 흐름 Mermaid</h2>
             </div>
-            <button class="text-button" id="toggleMermaidSource" type="button">
-              <i data-lucide="code-2"></i>
-              원문 보기
-            </button>
+            <div class="heading-actions">
+              <div class="segmented sequence-tabs" id="sequenceVariant" aria-label="시퀀스 보기 전환"></div>
+              <button class="text-button" id="toggleMermaidSource" type="button">
+                <i data-lucide="code-2"></i>
+                원문 보기
+              </button>
+            </div>
           </div>
           <div class="mermaid-wrap">
             <p class="offline-note hidden" id="mermaidFallbackNotice">
@@ -225,6 +228,6 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260616-20"></script>
+    <script src="./app.js?v=20260616-21"></script>
   </body>
 </html>

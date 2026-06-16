@@ -1268,21 +1268,35 @@ function renderBackend() {
     .join("");
 }
 
-function renderMermaid() {
-  const diagram = document.getElementById("mermaidDiagram");
+function showMermaidFallback(message) {
   const source = document.getElementById("mermaidSourceView");
   const notice = document.getElementById("mermaidFallbackNotice");
+  notice.textContent = message;
+  notice.classList.remove("hidden");
+  source.classList.remove("hidden");
+}
+
+async function renderMermaid() {
+  const diagram = document.getElementById("mermaidDiagram");
+  const source = document.getElementById("mermaidSourceView");
   diagram.textContent = mermaidSource;
   source.textContent = mermaidSource;
-  if (window.mermaid) {
-    mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: "base" });
-    mermaid.run({ querySelector: ".mermaid" }).catch(() => {
-      notice.classList.remove("hidden");
-      source.classList.remove("hidden");
-    });
-  } else {
-    notice.classList.remove("hidden");
-    source.classList.remove("hidden");
+
+  if (!window.mermaid || typeof window.mermaid.render !== "function") {
+    showMermaidFallback("Mermaid 렌더러를 찾지 못해 시퀀스 원문을 표시합니다. GitHub Pages에는 vendor/mermaid.min.js 파일이 index.html과 같은 배포 경로 기준으로 있어야 합니다.");
+    return;
+  }
+
+  try {
+    window.mermaid.initialize({ startOnLoad: false, securityLevel: "loose", theme: "base" });
+    const renderId = `safe-trade-sequence-${Date.now()}`;
+    const result = await window.mermaid.render(renderId, mermaidSource);
+    diagram.classList.remove("mermaid");
+    diagram.innerHTML = result.svg || result;
+    if (typeof result.bindFunctions === "function") result.bindFunctions(diagram);
+  } catch (error) {
+    console.error("Mermaid render failed", error);
+    showMermaidFallback("Mermaid 파일은 로드되었지만 시퀀스 렌더링 중 오류가 발생해 원문을 표시합니다. 브라우저 콘솔의 'Mermaid render failed' 메시지를 확인해 주세요.");
   }
 }
 

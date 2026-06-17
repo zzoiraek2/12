@@ -738,11 +738,11 @@ input {
 .policy-popup-header {
   display: grid;
   gap: 8px;
-  text-align: center;
+  text-align: left;
 }
 
 .popup-badge {
-  justify-self: center;
+  justify-self: start;
   padding: 4px 10px;
   border-radius: 999px;
   background: #e0f2fe;

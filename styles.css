@@ -345,6 +345,7 @@ input {
 .kpi-card,
 .step-card,
 .info-card,
+.admin-menu-card,
 .policy-card,
 .model-card {
   border: 1px solid var(--line);
@@ -1074,6 +1075,82 @@ input {
   padding: 20px;
 }
 
+.admin-layout {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.admin-principle {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid #c7d2fe;
+  border-left: 4px solid var(--brand-2);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.admin-principle strong {
+  color: var(--brand-2);
+  font-size: 15px;
+}
+
+.admin-principle p {
+  margin: 0;
+  color: var(--text);
+}
+
+.admin-menu-grid,
+.admin-table-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-menu-card {
+  padding: 16px;
+}
+
+.admin-menu-card h3,
+.admin-table-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.admin-menu-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.admin-menu-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.admin-menu-card li + li {
+  margin-top: 5px;
+}
+
+.admin-table-block {
+  min-width: 0;
+}
+
+.admin-table-block table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.admin-table-block th,
+.admin-table-block td {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
 .two-column h3,
 #monitoring h3,
 #backend h3,
@@ -1360,6 +1437,8 @@ code {
 @media (max-width: 1180px) {
   .hero-panel,
   .two-column,
+  .admin-menu-grid,
+  .admin-table-grid,
   .detail-grid,
   .policy-grid,
   .matrix-grid,

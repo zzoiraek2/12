@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>USDT 안전거래 정책 분석</title>
-    <link rel="stylesheet" href="./styles.css?v=20260617-1" />
+    <link rel="stylesheet" href="./styles.css?v=20260617-2" />
     <script src="./vendor/mermaid.min.js?v=20260616-1"></script>
     <script src="./vendor/lucide.min.js?v=20260616-1"></script>
   </head>
@@ -16,25 +16,26 @@
           <h1>USDT 안전거래 정책 분석</h1>
         </div>
         <div class="topbar-actions">
-          <span class="version-pill">v1.0</span>
-          <button class="icon-button" id="downloadMd" title="Markdown 내보내기" type="button">
-            <i data-lucide="file-down"></i>
-          </button>
-          <button class="icon-button" id="downloadJson" title="JSON 내보내기" type="button">
-            <i data-lucide="braces"></i>
-          </button>
-          <a class="icon-button" href="./usdt_safe_trade_sequence_interpretation_spec.md" title="원본 명세 열기">
-            <i data-lucide="file-text"></i>
-          </a>
+          <div class="topbar-search">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input id="globalSearch" type="search" placeholder="본문 단어, 문구, 상태 검색" />
+              <div class="search-nav" aria-label="검색 결과 이동">
+                <span class="search-count" id="searchCount">0 / 0</span>
+                <button class="search-nav-button" id="searchPrev" type="button" title="이전 검색 결과" aria-label="이전 검색 결과" disabled>
+                  <i data-lucide="chevron-up"></i>
+                </button>
+                <button class="search-nav-button" id="searchNext" type="button" title="다음 검색 결과" aria-label="다음 검색 결과" disabled>
+                  <i data-lucide="chevron-down"></i>
+                </button>
+              </div>
+            </div>
+            <div class="search-summary" id="searchSummary" aria-live="polite"></div>
+          </div>
         </div>
       </header>
 
       <aside class="sidebar" aria-label="페이지 내비게이션">
-        <div class="search-box">
-          <i data-lucide="search"></i>
-          <input id="globalSearch" type="search" placeholder="본문 단어, 문구, 상태 검색" />
-        </div>
-        <div class="search-summary" id="searchSummary" aria-live="polite"></div>
         <nav id="navList"></nav>
       </aside>
 
@@ -243,6 +244,6 @@
       </main>
     </div>
 
-    <script src="./app.js?v=20260617-7"></script>
+    <script src="./app.js?v=20260617-8"></script>
   </body>
 </html>

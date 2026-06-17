@@ -1,3 +1,6 @@
+let searchResultMarks = [];
+let activeSearchResultIndex = -1;
+
 const appData = {
   navigation: [
     ["sequence", "전체 시퀀스", "git-branch"],
@@ -50,8 +53,8 @@ const appData = {
     ["KRW_ACCOUNT_OPENED_TO_BUYER", "STEP1-2", "USDT 매도자의 원화 수취 계좌가 USDT 매수자에게 공개"],
     ["BUYER_KRW_PROOF_SUBMITTED", "STEP1-2", "USDT 매수자 이체확인증 등록 및 본인 이체 확인 동의 완료"],
     ["SELLER_KRW_CONFIRMED", "STEP2", "USDT 매도자 원화 입금 확인 완료"],
-    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소 이체확인증 및 이상거래 검토 완료"],
-    ["MNEMONIC_OPEN_ENABLED", "STEP2", "USDT 매수자 USDT 수령 확인(니모닉 열람) 버튼 활성화"],
+    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소 이체확인증 및 이상거래 검토 완료. 단, USDT 매도자 원화 입금 확인 전에는 최종 승인 불가"],
+    ["MNEMONIC_OPEN_ENABLED", "STEP2", "USDT 매도자 원화 입금 확인과 거래소 검토가 모두 완료되어 USDT 매수자 USDT 수령 확인(니모닉 열람) 버튼 활성화"],
     ["BUYER_MNEMONIC_VIEWED", "거래완료", "USDT 매수자 USDT 수령 확인(니모닉 열람) 및 거래완료 확정"],
     ["TRADE_COMPLETED", "거래완료", "거래 종료"],
     ["CANCELED", "취소완료", "취소 처리"],
@@ -61,7 +64,8 @@ const appData = {
     ["매칭확정 확인", "시스템+운영자", "매칭확정 전", "ARS 동의/동의안함/응답없음"],
     ["STEP1-1 USDT 입금 지연 확인", "운영자", "제한시간(30분) 이내 미입금", "재진행/분쟁/취소검토"],
     ["수수료 입금 미확인", "운영자", "수수료 지갑 미입금", "재전송요청/보류"],
-    ["STEP1-2 이체확인증 검토", "운영자", "USDT 매수자 이체확인증 등록", "정상/보완요청/분쟁"],
+    ["STEP1-2 이체확인증 검토", "운영자", "USDT 매수자 이체확인증 등록", "정상/보완요청/분쟁. 정상이어도 USDT 매도자 입금확인 전 최종 승인 불가"],
+    ["USDT 매도자 입금확인 지연", "운영자", "이체확인증 정상 검토 후 USDT 매도자 확인 미완료", "확인 요청 알림/유선 확인 기록/분쟁검토"],
     ["분쟁 검토", "운영자+준법 필요 시", "금액 불일치, 확인 불가", "정상처리/거래중단/법적대응 검토"],
     ["USDT 반환 요청 검토", "운영자+준법 필요 시", "원화 입금 문제로 USDT 매도자 반환 요청", "반환 가능/불가/추가증빙"]
   ],
@@ -154,7 +158,8 @@ const appData = {
   },
   operations: [
     ["거래 상세 관리", ["거래번호, 금액, 상태, USDT 매수자/USDT 매도자, 매칭시간", "상태 타임라인과 버튼 클릭 이력 확인", "운영자 메모와 조치 이력 저장"]],
-    ["이체확인증 검토", ["첨부파일 원본 보기", "금액/예금주/계좌/시간 확인", "정상/보완요청/분쟁검토 처리"]],
+    ["이체확인증 검토", ["첨부파일 원본 보기", "금액/예금주/계좌/시간 확인", "정상/보완요청/분쟁검토 처리", "USDT 매도자 원화 입금 확인 전에는 거래완료 승인 및 니모닉 열람 활성화 불가"]],
+    ["USDT 매도자 확인 요청", ["이체확인증 정상 검토 후 USDT 매도자 확인 버튼 미클릭 건 확인", "USDT 매도자에게 본인 계좌 입금 확인 및 확인 버튼 클릭 요청", "알림 발송, 유선 확인, 확인 지연 메모를 운영 로그로 저장", "지연 또는 부인 시 분쟁검토 전환"]],
     ["첨부파일 관리", ["허용 확장자와 용량 검증", "다운로드/열람 권한 제한", "보관기간과 삭제 정책 관리"]],
     ["분쟁 관리", ["분쟁 사유 분류", "USDT 매수자/USDT 매도자 주장과 증빙 정리", "보류/정상처리/반환검토/법적대응 상태 관리"]],
     ["USDT 반환 요청", ["USDT 매도자 반환 요청 접수", "원화 미입금/확인증 위조/수량 불일치 검토", "반환 승인 전 임의 송금 차단"]],
@@ -200,7 +205,7 @@ const appData = {
       badge: "신청 시 동의",
       purpose: "니모닉 열람 시 거래완료 확정, 열람 기간, 보관 책임을 고지하는 문서",
       sections: [
-        ["제1조 열람 조건", ["니모닉 열람은 USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 완료된 STEP2에서만 가능하다.", "운영자 검토가 필요한 거래는 보류 또는 분쟁 상태가 해소된 뒤 열람할 수 있다."]],
+        ["제1조 열람 조건", ["니모닉 열람은 USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 모두 완료된 STEP2에서만 가능하다.", "이체확인증이 정상이어도 USDT 매도자 원화 입금 확인 전에는 관리자 승인과 니모닉 열람 활성화가 불가하다.", "운영자 검토가 필요한 거래는 보류 또는 분쟁 상태가 해소된 뒤 열람할 수 있다."]],
         ["제2조 거래완료 확정", ["USDT 매수자가 니모닉을 열람하면 거래 완료가 확정되며, USDT 매수자가 본인 지갑 소유를 확인한 것으로 기록된다.", "니모닉 열람 후에는 단순 변심 또는 보관 부주의를 이유로 거래를 취소할 수 없다."]],
         ["제3조 재열람 기간", ["니모닉은 거래완료(니모닉 최초 열람) 시점부터 7일간만 재열람할 수 있으며, 7일 경과 후 재열람은 불가하다.", "7일 경과 후 니모닉은 영구 삭제되며, 삭제된 니모닉은 복구할 수 없다.", "니모닉 삭제 이력은 로그로 보관하고 회원에게 사전 고지한다."]],
         ["제4조 보관 권장", ["니모닉은 반드시 수기로 보관하거나 메타마스크 등 본인 외부 지갑에 복구/이전해 자산 소유를 확인해야 한다.", "거래번호, 지갑주소, TXID, 접근 로그는 분쟁/감사 목적의 보관정책에 따라 보관된다."]]
@@ -232,7 +237,7 @@ const appData = {
         ["제7조 수령지갑 생성", ["USDT 매수자가 생성 동의한 수령지갑은 USDT 매수자 소유 지갑이며 포블 소유 지갑이 아니다.", "포블은 거래 완료 전까지 안전거래 진행을 위해 지갑 생성과 니모닉 암호화 보관을 대행한다.", "포블은 수령지갑의 자산 통제권을 보유하지 않으며 단독 복구, 단독 자산 이동, 단독 자산 반환을 할 수 없다."]],
         ["제8조 원화 이체 및 확인증", ["USDT 매수자는 거래금액만 USDT 매도자에게 원화로 이체하며 별도 원화 수수료를 부담하지 않는다.", "이체확인증 위조, 제3자 입금, 금액 불일치, 예금주 불일치는 분쟁검토 대상이다."]],
         ["제9조 USDT 입금 및 수수료", ["USDT 매도자는 USDT 매수자에게 지급할 USDT에서 USDT 매도자 부담 수수료와 USDT 매도 프리미엄을 차감한 수량을 전송한다.", "USDT 매도자는 포블 수수료 지갑으로 USDT 매도자 수수료와 USDT 매도자 부담 수수료를 합산한 USDT를 별도 전송한다."]],
-        ["제10조 니모닉 열람과 거래완료", ["니모닉 열람은 이체확인 검토 완료 후 가능하며, 열람 시 거래완료가 확정된다.", "니모닉 열람은 USDT 매수자가 본인 수령지갑의 소유를 확인하는 행위로 기록된다."]],
+        ["제10조 니모닉 열람과 거래완료", ["니모닉 열람은 USDT 매도자의 원화 입금 확인과 이체확인증 검토가 모두 완료된 후 가능하며, 열람 시 거래완료가 확정된다.", "이체확인증 검토가 정상이어도 USDT 매도자 확인 전에는 니모닉 열람을 활성화할 수 없다.", "니모닉 열람은 USDT 매수자가 본인 수령지갑의 소유를 확인하는 행위로 기록된다."]],
         ["제11조 재열람 기간", ["니모닉은 거래완료(니모닉 최초 열람) 시점부터 7일간만 재열람 가능하다.", "7일 경과 후에는 니모닉이 영구 삭제되며 재열람 또는 복구가 불가하다.", "삭제 이력은 로그로 보관하고 회원에게 사전 고지한다."]],
         ["제12조 분쟁, 보류, 반환", ["확인증 위조, 원화 미입금, USDT 수량 불일치, USDT 매도자 부인, 제3자 입금은 분쟁검토로 전환한다.", "고객 귀책이 없는 USDT 반환은 반환 수수료 없이 입금 USDT 전액 반환을 원칙으로 한다."]],
         ["제13조 수수료와 프리미엄", ["수수료율, 프리미엄율, USDT 기준가, 제한시간, 취소 제한은 어드민 정책 설정에 따른다.", "USDT 매수자는 원화 기준 거래금액만 이체하며 수수료/프리미엄은 USDT 매도자가 USDT 수량으로 부담한다."]],
@@ -253,7 +258,7 @@ const appData = {
       sections: [
         ["핵심고지", ["포블은 회원 간 USDT 안전거래 매칭을 중계하고 거래 상태와 증빙 확인 절차를 지원한다.", "원화 이체와 USDT 전송은 회원 간 직접 이루어지며, 포블은 원화 수취 주체가 아니다."]],
         ["서비스 제공 범위", ["거래신청, 매칭, 상태 메시지, 지갑 생성, 입금 모니터링, 이체확인증 검토, 분쟁 접수 및 반환 검토를 지원한다.", "포블은 회원의 외부 지갑 관리, 계좌 오입력, 니모닉 분실에 따른 손실을 보장하지 않는다."]],
-        ["원화 이체대금 처리", ["USDT 매수자는 USDT 매도자 본인명의 계좌로 거래금액을 직접 이체한다.", "원화 입금 여부는 이체확인증, USDT 매도자 확인, 계좌 정보, 운영자 검토 결과를 기준으로 판단한다."]],
+        ["원화 이체대금 처리", ["USDT 매수자는 USDT 매도자 본인명의 계좌로 거래금액을 직접 이체한다.", "원화 입금 여부는 이체확인증, USDT 매도자 확인, 계좌 정보, 운영자 검토 결과를 기준으로 판단한다.", "이체확인증이 정상이어도 USDT 매도자 원화 입금 확인 전에는 최종 승인과 니모닉 열람을 진행하지 않는다."]],
         ["수수료 정책", ["USDT 매수자는 원화 기준 거래금액만 이체한다.", "USDT 매도자 수수료, USDT 매도자 부담 수수료, USDT 매도 프리미엄은 USDT 수량 기준으로 산정한다."]],
         ["가상자산 이전 및 접근정보 제공", ["USDT 매수자 수령지갑은 USDT 매수자 소유 지갑이며 포블 소유 지갑이 아니다.", "포블은 수령지갑의 자산 통제권을 보유하지 않으며 단독 복구, 단독 자산 이동, 단독 자산 반환을 할 수 없다.", "니모닉 열람은 거래 완료 확정으로 처리되며 거래완료(니모닉 최초 열람) 후 7일간만 재열람 가능하다.", "7일 경과 후 니모닉은 영구 삭제되며 복구할 수 없다."]],
         ["거래확정 및 보류", ["매칭확정 이후 임의 취소는 제한된다.", "입금 지연, 증빙 불일치, 수량 불일치, 제3자 입금, 위조 의심은 보류 또는 분쟁검토로 전환한다."]],
@@ -269,8 +274,8 @@ const appData = {
         ["STEP0 거래신청", ["거래금액을 선택해 매수 또는 매도 신청을 등록한다.", "동일 금액대 재신청 제한과 일일 취소 제한이 적용될 수 있다."]],
         ["매칭준비중", ["상대방과 매칭되면 내 거래 의사 메시지, 약관/PIN, 필요 시 ARS 동의를 완료한다.", "양측 PIN 완료 전까지는 매칭취소가 가능하고, 매칭확정 이후 임의 취소는 제한된다."]],
         ["STEP1-1 지갑주소 확인 및 USDT 전송", ["USDT 매도자는 USDT 매수자 수령지갑과 포블 수수료 지갑 주소를 확인한 뒤 USDT를 전송한다.", "제한시간 내 미입금 또는 수량 불일치는 보류/분쟁 대상이다."]],
-        ["STEP1-2 USDT 확인 및 원화 입금", ["USDT 매수자는 USDT 입금 자동검증 후 USDT 매도자의 원화 수취 계좌로 거래금액을 정확히 이체하고 이체확인증을 등록한다.", "이체확인증은 운영 검토와 USDT 매도자 확인을 거친다."]],
-        ["STEP2 원화 확인 및 니모닉 열람", ["USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 끝나면 USDT 매수자는 니모닉을 조회한다.", "거래완료(니모닉 최초 열람) 후 7일간만 재열람 가능하고 이후 영구 삭제된다."]]
+        ["STEP1-2 USDT 확인 및 원화 입금", ["USDT 매수자는 USDT 입금 자동검증 후 USDT 매도자의 원화 수취 계좌로 거래금액을 정확히 이체하고 이체확인증을 등록한다.", "이체확인증은 운영 검토와 USDT 매도자 확인을 모두 거쳐야 한다.", "이체확인증만 정상인 경우 USDT 매도자 확인 요청 상태로 보류한다."]],
+        ["STEP2 원화 확인 및 니모닉 열람", ["USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 모두 끝나면 USDT 매수자는 니모닉을 조회한다.", "거래완료(니모닉 최초 열람) 후 7일간만 재열람 가능하고 이후 영구 삭제된다."]]
       ]
     },
     {
@@ -421,11 +426,14 @@ const improvedMermaidSource = `sequenceDiagram
 
     Foblgate-->>Seller: STEP2 - 원화 입금 확인 화면
     Foblgate-->>Buyer: STEP2 - USDT 수령 확인 및 거래소 검토 대기
-    Seller->>Seller: 본인 계좌에서 원화 입금 여부 확인
-    Seller->>Foblgate: [버튼] 원화 입금 확인 완료
-    Ops->>Foblgate: 이체확인증 및 이상거래 검토
+    par USDT 매도자 원화 확인
+        Seller->>Seller: 본인 계좌에서 원화 입금 여부 확인
+        Seller->>Foblgate: [버튼] 원화 입금 확인 완료
+    and 거래소 이체확인증 검토
+        Ops->>Foblgate: 이체확인증 및 이상거래 검토
+    end
 
-    alt 원화 수취 및 증빙 정상
+    alt USDT 매도자 확인 및 증빙 검토 모두 정상
         Foblgate-->>Seller: USDT 매수자 수령 확인 대기
         Foblgate-->>Buyer: 니모닉 오픈 버튼 활성화
         Buyer->>Foblgate: [버튼] USDT 수령 확인(니모닉 열람)
@@ -433,6 +441,10 @@ const improvedMermaidSource = `sequenceDiagram
         Foblgate->>Foblgate: 니모닉 열람 시 거래완료 확정
         Foblgate-->>Buyer: 거래가 종료되었습니다.
         Foblgate-->>Seller: 거래가 종료되었습니다.
+    else 이체확인증 정상이나 USDT 매도자 확인 미완료
+        Foblgate->>Ops: 최종 승인 및 니모닉 활성화 차단
+        Ops-->>Seller: 본인 계좌 확인 및 입금확인 버튼 클릭 요청
+        Ops->>Foblgate: 확인 요청/유선 확인/지연 사유 로그 저장
     else 원화 미입금/증빙 불일치
         Foblgate->>Ops: DISPUTE_REVIEW 전환
         Seller->>Ops: 원화 입금 문제로 USDT 반환 요청
@@ -510,13 +522,13 @@ const improvedSteps = [
     index: "STEP1-2",
     title: "원화 보내기와 입금 대기",
     state: "거래진행중",
-    summary: "USDT 자동검증이 완료되면 USDT 매수자에게 USDT 매도자의 원화 수취 계좌가 열리고, USDT 매수자는 이체확인증과 본인 이체 확인 동의 후 원화 입금완료 메시지를 보낸다.",
+    summary: "USDT 자동검증이 완료되면 USDT 매수자에게 USDT 매도자의 원화 수취 계좌가 열리고, USDT 매수자는 이체확인증과 본인 이체 확인 동의 후 원화 입금완료 메시지를 보낸다. 이체확인증이 정상이어도 USDT 매도자의 입금확인 전에는 최종 승인으로 진행하지 않는다.",
     buyer: ["원화 보내기", "수령지갑 USDT 입금수량 확인", "USDT 매도자 원화 수취 계좌 확인", "본인명의 계좌에서 원화 이체", "이체확인증 등록", "본인이 이체한 거래가 맞는지 확인 동의", "원화 입금을 완료했습니다 메시지 송출"],
     seller: ["원화 입금 대기", "USDT 매수자의 원화 입금완료 메시지 수신 대기", "원화 입금 확인 화면 진입 대기", "입금완료 메시지 수신 후 본인 계좌 확인 준비"],
     system: ["KRW_ACCOUNT_OPENED_TO_BUYER", "BUYER_KRW_PROOF_SUBMITTED", "BUYER_TRANSFER_SELF_CONFIRM_ACCEPTED", "입금완료 메시지를 USDT 매도자에게 송출", "거래소 이체확인증 검토 대기 상태 생성"],
     buttons: ["USDT 입금 확인", "원화 수취 계좌 확인", "이체확인증 등록", "본인 이체 확인 동의", "원화 입금을 완료했습니다"],
     messages: ["USDT 입금이 확인되었습니다. USDT 매도자의 원화 수취 계좌를 확인하고 원화 보내기를 진행해주세요.", "USDT 매수자가 원화 입금을 완료했다고 알렸습니다. 본인 계좌에서 실제 원화 입금 여부를 확인해주세요."],
-    ops: ["이체확인증 파일 형식, 금액, 입금자명, 거래번호 검토", "증빙 부족, 제3자 입금, 금액 불일치 시 보류/분쟁 전환"],
+    ops: ["이체확인증 파일 형식, 금액, 입금자명, 거래번호 검토", "증빙 정상 검토 후에도 USDT 매도자 입금확인 전에는 승인 보류", "USDT 매도자 미확인 시 확인 요청 알림 또는 유선 확인 기록", "증빙 부족, 제3자 입금, 금액 불일치 시 보류/분쟁 전환"],
     completion: "이체확인증 등록 + 본인 이체 확인 동의 + 입금완료 메시지 송출",
     exceptions: ["제한시간 내 원화 미입금", "이체확인증 불충분 또는 위조 의심", "제3자 입금/분할입금/금액 불일치"]
   },
@@ -525,15 +537,15 @@ const improvedSteps = [
     index: "STEP2",
     title: "원화 입금 확인과 USDT 수령 확인",
     state: "거래완료 검토",
-    summary: "USDT 매도자는 원화 입금 확인 완료 버튼을 누르고, 거래소 검토가 끝나면 USDT 매수자의 USDT 수령 확인(니모닉 열람) 버튼이 활성화된다. 열람 시 거래완료로 전환된다.",
+    summary: "USDT 매도자가 원화 입금 확인 완료 버튼을 누르고 거래소 이체확인증 검토까지 끝난 경우에만 USDT 매수자의 USDT 수령 확인(니모닉 열람) 버튼이 활성화된다. 이체확인증만 정상인 상태에서는 관리자가 최종 승인할 수 없으며 USDT 매도자 확인 요청 상태로 보류한다.",
     buyer: ["USDT 수령 확인(니모닉 열람)", "USDT 매도자의 원화 입금확인 완료 대기", "거래소 이체확인증 검토 완료 대기", "열람 후 7일 내 별도 보관 또는 외부 지갑 이전"],
     seller: ["원화 입금 확인", "본인 계좌에서 원화 입금 여부, 금액, 입금자명 확인", "원화 입금 확인 완료 버튼 클릭", "USDT 매수자 수령 확인 및 거래완료 대기"],
-    system: ["SELLER_KRW_CONFIRMED", "TRANSFER_REVIEW_COMPLETED", "MNEMONIC_OPEN_ENABLED", "BUYER_MNEMONIC_VIEWED", "TRADE_COMPLETED"],
+    system: ["SELLER_KRW_CONFIRMED", "TRANSFER_REVIEW_COMPLETED", "SELLER_KRW_CONFIRMED + TRANSFER_REVIEW_COMPLETED 충족 시 MNEMONIC_OPEN_ENABLED", "BUYER_MNEMONIC_VIEWED", "TRADE_COMPLETED"],
     buttons: ["원화 입금 확인 완료", "USDT 수령 확인(니모닉 열람)", "거래완료 확인"],
-    messages: ["USDT 매도자의 원화 입금확인이 완료되었습니다.", "거래소 검토가 완료되어 USDT 수령 확인(니모닉 열람)을 진행할 수 있습니다.", "USDT 수령 확인(니모닉 열람)으로 거래가 완료되었습니다."],
-    ops: ["USDT 매도자 허위 확인, USDT 매수자 증빙 불일치, 이상거래 의심은 USDT 수령 확인 버튼 차단", "니모닉 열람 로그, IP, 디바이스, 열람시각 저장"],
+    messages: ["USDT 매도자의 원화 입금확인이 완료되었습니다.", "이체확인증은 정상 검토되었으나 USDT 매도자의 원화 입금 확인이 필요합니다.", "USDT 매도자 확인과 거래소 검토가 모두 완료되어 USDT 수령 확인(니모닉 열람)을 진행할 수 있습니다.", "USDT 수령 확인(니모닉 열람)으로 거래가 완료되었습니다."],
+    ops: ["이체확인증 정상 검토 후 USDT 매도자 확인 전이면 최종 승인 및 니모닉 열람 활성화 차단", "USDT 매도자에게 본인 계좌 확인 및 확인 버튼 클릭 요청", "알림 발송, 유선 확인 결과, 확인 지연 사유를 운영 로그로 저장", "USDT 매도자 허위 확인, USDT 매수자 증빙 불일치, 이상거래 의심은 USDT 수령 확인 버튼 차단", "니모닉 열람 로그, IP, 디바이스, 열람시각 저장"],
     completion: "USDT 매도자 입금확인 완료 + 거래소 검토 완료 + USDT 매수자 USDT 수령 확인",
-    exceptions: ["USDT 매도자 미확인 또는 입금 부인", "이체확인증 검토 보류", "니모닉 열람 후 7일 경과 시 재열람 불가"]
+    exceptions: ["이체확인증 정상이나 USDT 매도자 확인 미완료 시 확인 요청/승인 보류", "USDT 매도자 미확인 또는 입금 부인", "이체확인증 검토 보류", "니모닉 열람 후 7일 경과 시 재열람 불가"]
   },
   {
     id: "improved-complete",
@@ -573,7 +585,7 @@ const improvedPolicyImpact = {
     ["KRW_ACCOUNT_OPENED_TO_BUYER", "STEP1-2", "USDT 검증 완료 후 USDT 매도자의 원화 수취 계좌가 USDT 매수자에게 공개된 상태"],
     ["BUYER_KRW_PROOF_SUBMITTED", "STEP1-2", "USDT 매수자가 이체확인증을 등록하고 본인 이체 확인 동의를 완료한 상태"],
     ["SELLER_KRW_CONFIRMED", "STEP2", "USDT 매도자가 본인 계좌에서 원화 입금을 확인하고 완료 버튼을 누른 상태"],
-    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소가 이체확인증과 이상거래 검토를 완료한 상태"],
+    ["TRANSFER_REVIEW_COMPLETED", "STEP2", "거래소가 이체확인증과 이상거래 검토를 완료한 상태. USDT 매도자 입금확인 전에는 최종 승인 불가"],
     ["MNEMONIC_OPEN_ENABLED", "STEP2", "USDT 매도자 확인과 거래소 검토가 모두 끝나 USDT 수령 확인(니모닉 열람) 버튼이 활성화된 상태"]
   ],
   buttons: [
@@ -599,6 +611,8 @@ const improvedPolicyImpact = {
     ["이체확인증/본인확인", "USDT 매수자", "이체확인증을 등록하고 본인이 이체한 거래가 맞는지 확인해 주세요."],
     ["입금완료 송출", "USDT 매도자", "USDT 매수자가 원화 입금을 완료했다고 알렸습니다. 본인 계좌에서 실제 원화 입금 여부를 확인해 주세요."],
     ["원화 확인 완료", "USDT 매수자", "USDT 매도자의 원화 입금 확인이 완료되었습니다. 거래소 이체확인증 검토를 기다려 주세요."],
+    ["USDT 매도자 확인 요청", "USDT 매도자", "이체확인증 검토가 완료되었습니다. 본인 계좌에서 원화 입금 여부를 확인한 뒤 입금확인 버튼을 눌러주세요."],
+    ["승인 보류", "운영자", "USDT 매도자의 원화 입금 확인이 완료되지 않아 승인할 수 없습니다. 확인 요청 후 처리 이력을 남겨주세요."],
     ["니모닉 활성화", "USDT 매수자", "USDT 매도자 확인과 거래소 검토가 완료되었습니다. 니모닉을 조회할 수 있습니다."],
     ["거래완료", "양측", "USDT 매수자가 USDT 수령 확인(니모닉 열람)을 완료하여 거래가 완료되었습니다."]
   ],
@@ -615,7 +629,8 @@ const improvedPolicyImpact = {
     ["원화계좌 오픈", "USDT 자동검증 완료 전 원화계좌 미노출 여부", "노출 차단"],
     ["본인 이체 확인 동의", "이체확인증 등록 후 본인 이체 확인 동의 여부", "입금완료 메시지 차단"],
     ["USDT 매도자 원화 확인", "USDT 매도자가 본인 계좌에서 입금 확인 완료 버튼을 눌렀는지", "재알림/분쟁"],
-    ["거래소 검토 완료", "이체확인증, 금액, 입금자명, 이상거래 여부 검토 완료", "니모닉 버튼 활성/보류"],
+    ["거래소 검토 완료", "이체확인증, 금액, 입금자명, 이상거래 여부 검토 완료", "USDT 매도자 확인 완료 시 니모닉 버튼 활성, 미완료 시 승인 보류"],
+    ["어드민 최종 승인", "이체확인증 정상 검토와 USDT 매도자 원화 입금확인이 모두 완료되었는지", "둘 중 하나라도 미완료면 승인 차단"],
     ["USDT 수령 확인(니모닉 열람)", "니모닉 열람 시 거래완료 전환 및 접근 로그 저장", "완료/보안 로그"]
   ]
 };
@@ -877,7 +892,7 @@ function getPolicyPopup(doc) {
       subtitle: "니모닉을 열람하면 거래 완료로 확정됩니다.",
       lead: "니모닉은 USDT 수령지갑을 복구할 수 있는 가장 중요한 정보입니다. 열람 전에 보관 방법을 준비해주세요.",
       sections: [
-        ["열람 가능 조건", ["USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 완료된 STEP2에서만 열람할 수 있습니다.", "보류 또는 분쟁 상태에서는 운영자 검토가 끝난 뒤 열람할 수 있습니다."]],
+        ["열람 가능 조건", ["USDT 매도자 원화 입금 확인과 거래소 이체확인증 검토가 모두 완료된 STEP2에서만 열람할 수 있습니다.", "이체확인증이 정상이어도 USDT 매도자 원화 입금 확인 전에는 관리자 승인과 니모닉 열람 활성화가 불가합니다.", "보류 또는 분쟁 상태에서는 운영자 검토가 끝난 뒤 열람할 수 있습니다."]],
         ["열람 후 효과", ["니모닉을 열람하면 거래가 완료됩니다.", "열람 기록은 고객님이 수령지갑 소유를 확인한 기록으로 남습니다."]],
         ["재열람 기간", ["거래완료(니모닉 최초 열람) 시점부터 7일간만 재열람할 수 있습니다.", "7일이 지나면 니모닉은 영구 삭제되며 재열람 또는 복구할 수 없습니다.", "삭제 이력은 로그로 보관됩니다."]]
       ],
@@ -891,7 +906,7 @@ function getPolicyPopup(doc) {
       lead: "포블은 USDT 매수자와 USDT 매도자의 거래 의사를 매칭하고, 거래 상태와 증빙 확인 절차를 지원합니다. 원화 이체와 USDT 전송은 회원 간에 직접 이루어집니다.",
       sections: [
         ["거래 책임", ["USDT 매수자는 거래금액을 USDT 매도자 본인명의 계좌로 정확히 이체해야 합니다.", "USDT 매도자는 USDT 매수자 수령지갑과 포블 수수료 지갑으로 정해진 USDT를 정확히 전송해야 합니다."]],
-        ["증빙 확인", ["원화 입금 여부는 이체확인증, 계좌 확인, 운영자 검토를 통해 판단합니다.", "이체확인증과 분쟁 자료는 분쟁 처리와 감사 목적 범위에서 포블이 보관할 수 있습니다."]],
+        ["증빙 확인", ["원화 입금 여부는 이체확인증, 계좌 확인, USDT 매도자 확인, 운영자 검토를 통해 판단합니다.", "이체확인증이 정상이어도 USDT 매도자의 입금확인 버튼이 눌리기 전에는 최종 승인과 니모닉 열람이 진행되지 않습니다.", "이체확인증과 분쟁 자료는 분쟁 처리와 감사 목적 범위에서 포블이 보관할 수 있습니다."]],
         ["지갑 소유", ["USDT 매수자 수령지갑은 USDT 매수자 소유 지갑이며 포블 소유 지갑이 아닙니다.", "니모닉 열람 후에는 고객이 직접 외부 지갑에 복구하거나 이전해 자산 소유를 확인해야 합니다."]],
         ["반환 기준", ["원화 입금 확정 전 또는 분쟁 중에는 USDT 반환 요청이 접수될 수 있습니다.", "고객 귀책이 없는 반환은 반환 수수료 없이 입금 USDT 전액 반환을 원칙으로 합니다."]]
       ],
@@ -907,7 +922,7 @@ function getPolicyPopup(doc) {
         ["거래 신청", ["거래금액을 선택해 매수 또는 매도 신청을 등록합니다.", "거래 신청은 상시 가능하지만 실제 매칭 진행은 영업일 10:00~19:00에 수행됩니다.", "영업시간 외 신청은 대기열에 등록되고 다음 영업시간에 매칭 진행 대상이 됩니다.", "동일 금액대 재신청 제한과 일일 취소 제한이 적용될 수 있습니다."]],
         ["매칭확정", ["상대방과 매칭되면 약관, PIN, ARS 동의를 완료합니다.", "매칭확정 이후에는 임의 취소가 제한됩니다."]],
         ["입금과 확인", ["USDT 매도자는 USDT와 포블 수수료 USDT를 전송합니다.", "USDT 매수자는 USDT 매도자의 원화 수취 계좌로 원화를 보내고 이체확인증을 등록합니다."]],
-        ["거래 완료", ["이체확인 검토가 끝나면 USDT 매수자는 니모닉을 열람합니다.", "니모닉 열람 후 외부 지갑 복구/이전으로 자산 소유를 확인합니다."]]
+        ["거래 완료", ["USDT 매도자의 원화 입금 확인과 이체확인 검토가 모두 끝나면 USDT 매수자는 니모닉을 열람합니다.", "니모닉 열람 후 외부 지갑 복구/이전으로 자산 소유를 확인합니다."]]
       ],
       warnings: ["제한시간 내 미진행, 수량 불일치, 확인증 문제는 보류 또는 분쟁으로 전환될 수 있습니다."],
       checks: ["단계별 진행 순서와 제한사항을 확인했습니다."],
@@ -1055,18 +1070,21 @@ function getPolicyArticle(doc) {
           "USDT 매수자는 원화 이체 후 서비스 화면에서 이체확인증을 등록하여야 합니다.",
           "이체확인증에는 거래금액, 송금일시, 수취인, 수취계좌, 금융기관, 거래번호 등 거래 확인에 필요한 정보가 포함되어야 합니다.",
           "허위, 위조, 변조, 취소된 이체내역, 예약이체 화면, 송금실패 화면, 타 거래건 증빙, 수취인 또는 금액이 불명확한 자료는 인정되지 않을 수 있습니다.",
-          "포블의 이체확인증 확인은 거래진행 조건 확인을 위한 절차이며, 실제 원화 입금의 보증을 의미하지 않습니다."
+          "포블의 이체확인증 확인은 거래진행 조건 확인을 위한 절차이며, 실제 원화 입금의 보증을 의미하지 않습니다.",
+          "이체확인증이 정상으로 검토되었더라도 USDT 매도자의 원화 입금 확인이 완료되지 않은 경우, 관리자는 거래완료 승인 또는 니모닉 열람 활성화를 할 수 없습니다."
         ]],
         ["제11조 USDT 매도자의 입금확인", [
           "USDT 매도자는 본인 명의 계좌에서 원화 입금 여부를 직접 확인하여야 합니다.",
           "USDT 매도자는 원화 입금을 확인한 경우 서비스 화면의 입금확인 또는 이체확인 완료 버튼을 클릭하여야 합니다.",
           "USDT 매도자가 입금확인 버튼을 클릭한 경우, USDT 매도자는 본인 계좌에서 거래대금 수취를 확인하고 거래완료 절차 진행에 동의한 것으로 봅니다.",
           "실제 입금이 확인되지 않았음에도 입금확인 버튼을 클릭해서는 안 됩니다.",
-          "포블은 필요 시 USDT 매도자에게 유선, 알림 또는 추가 자료를 통해 원화 수취 여부를 확인할 수 있습니다."
+          "포블은 필요 시 USDT 매도자에게 유선, 알림 또는 추가 자료를 통해 원화 수취 여부를 확인할 수 있습니다.",
+          "이체확인증 검토가 정상이나 USDT 매도자의 입금확인이 지연되는 경우, 관리자는 USDT 매도자에게 확인 버튼 클릭을 요청하고 알림 발송, 유선 확인, 지연 사유를 운영 로그로 기록합니다."
         ]],
         ["제12조 거래진행 조건 및 니모닉 열람", [
           "니모닉 열람은 포블이 정한 거래진행 조건이 충족된 이후 가능합니다.",
-          "거래진행 조건에는 매칭확정, 수령지갑 생성, USDT 매도자의 USDT 전송, 수수료 지갑 입금, USDT 매수자의 이체확인증 등록, USDT 매도자의 입금확인, 필요 시 추가 확인 절차가 포함될 수 있습니다.",
+          "거래진행 조건에는 매칭확정, 수령지갑 생성, USDT 매도자의 USDT 전송, 수수료 지갑 입금, USDT 매수자의 이체확인증 등록, USDT 매도자의 입금확인, 거래소 이체확인증 검토 완료, 필요 시 추가 확인 절차가 포함될 수 있습니다.",
+          "USDT 매수자의 니모닉 열람은 USDT 매도자의 원화 입금확인과 거래소 이체확인증 검토가 모두 완료된 경우에만 활성화됩니다.",
           "USDT 매수자가 니모닉을 최초 열람하면 거래완료가 확정되며, USDT 매수자가 수령지갑의 접근정보를 인수한 것으로 봅니다.",
           "니모닉은 거래완료(니모닉 최초 열람) 시점부터 7일간만 재열람할 수 있습니다.",
           "7일이 경과한 후에는 니모닉이 영구 삭제되어 재열람 또는 복구가 불가하므로, USDT 매수자는 열람 가능 기간 내 니모닉을 안전하게 보관하거나 외부 지갑 복구 또는 이전을 완료하여야 합니다.",
@@ -1154,6 +1172,8 @@ function getPolicyArticle(doc) {
           "USDT 매수자는 USDT 매도자 본인명의 계좌로 거래금액을 직접 이체합니다.",
           "포블은 원화 대금을 대신 수령하거나 보관하지 않습니다.",
           "원화 입금 여부는 이체확인증, USDT 매도자 확인, 계좌 정보, 운영자 검토로 판단합니다.",
+          "이체확인증이 정상이어도 USDT 매도자의 원화 입금 확인 전에는 관리자가 최종 승인하거나 니모닉 열람을 활성화할 수 없습니다.",
+          "USDT 매도자 확인이 지연되면 확인 요청 알림, 유선 확인, 지연 메모를 운영 로그로 남깁니다.",
           "이체확인증과 관련 증빙은 분쟁 대응과 감사 목적으로 보관될 수 있습니다."
         ]],
         ["수수료 정책", [
@@ -1173,6 +1193,7 @@ function getPolicyArticle(doc) {
           "매칭확정은 거래 의사, 약관, PIN, ARS 확인이 완료된 상태입니다.",
           "매칭확정 이후 단순 변심 취소는 제한됩니다.",
           "제한시간 내 미입금, 원화 입금 불일치, USDT 수량 불일치는 보류 대상입니다.",
+          "이체확인증 정상 검토 후에도 USDT 매도자의 원화 입금 확인이 없으면 거래는 승인 보류 상태로 유지합니다.",
           "제3자 입금, 확인증 위조 의심, USDT 매도자 원화 미수령 주장은 분쟁검토로 전환합니다."
         ]],
         ["USDT 반환 기준", [
@@ -1232,7 +1253,8 @@ function getPolicyArticle(doc) {
           title: "5. USDT 매수자 원화 이체 및 이체확인증 등록",
           body: [
             "USDT 매수자는 거래금액을 USDT 매도자 본인명의 계좌로 정확히 이체합니다. USDT 매수자는 원화 기준 거래금액만 이체하며 별도 원화 수수료를 추가로 납부하지 않습니다.",
-            "이체 후에는 이체확인증을 등록해야 합니다. 포블은 등록된 이체확인증, 계좌 정보, USDT 매도자 확인 및 운영자 검토를 통해 원화 입금 여부를 확인합니다."
+            "이체 후에는 이체확인증을 등록해야 합니다. 포블은 등록된 이체확인증, 계좌 정보, USDT 매도자 확인 및 운영자 검토를 통해 원화 입금 여부를 확인합니다.",
+            "이체확인증이 정상으로 검토되더라도 USDT 매도자의 원화 입금 확인 버튼이 눌리기 전에는 최종 승인과 니모닉 열람이 진행되지 않습니다."
           ],
           capture: "USDT 매도자 원화 수취 계좌 안내, 원화 이체 완료, 이체확인증 업로드 화면 캡처 영역"
         },
@@ -1240,6 +1262,7 @@ function getPolicyArticle(doc) {
           title: "6. 이체확인 검토 및 분쟁 전환",
           body: [
             "이체확인증이 정상이고 USDT 매도자 확인도 완료되면 거래는 니모닉 열람 단계로 이동합니다.",
+            "이체확인증은 정상이나 USDT 매도자 확인이 없으면 관리자는 승인할 수 없으며, USDT 매도자에게 본인 계좌 확인 및 확인 버튼 클릭을 요청합니다.",
             "금액 부족, 예금주 불일치, 제3자 입금, 확인증 위조 의심, USDT 매도자의 원화 미수령 주장이 있으면 분쟁검토로 전환될 수 있습니다. 이 경우 포블은 이체확인증과 관련 증빙을 분쟁 자료로 보관할 수 있습니다."
           ],
           capture: "이체확인 검토 결과, 보완 요청, 분쟁 전환 안내 화면 캡처 영역"
@@ -1247,7 +1270,7 @@ function getPolicyArticle(doc) {
         {
           title: "7. 니모닉 열람 및 거래 완료",
           body: [
-            "이체확인 검토가 완료되면 USDT 매수자는 니모닉을 열람할 수 있습니다. 니모닉 열람은 거래 완료 확정으로 처리됩니다.",
+            "USDT 매도자의 원화 입금 확인과 이체확인 검토가 모두 완료되면 USDT 매수자는 니모닉을 열람할 수 있습니다. 니모닉 열람은 거래 완료 확정으로 처리됩니다.",
             "니모닉은 거래완료(니모닉 최초 열람) 시점부터 7일간만 재열람할 수 있습니다. 7일 후에는 영구 삭제되어 재열람 또는 복구가 불가하므로 반드시 수기로 보관하거나 외부 지갑에 복구해 자산 소유를 확인해야 합니다."
           ],
           capture: "니모닉 열람 동의 팝업, 니모닉 표시, 재열람 만료 안내 화면 캡처 영역"
@@ -1292,7 +1315,7 @@ function getPolicyArticle(doc) {
         ["USDT 기준가와 수수료율은 고정인가요?", "고정값으로 단정하지 않습니다. 기준가, 수수료율, 프리미엄율, 산정방식, 적용시점은 시장상황, 운영정책 및 서비스 정책에 따라 변경될 수 있습니다."],
         ["원화는 누구에게 입금하나요?", "USDT 매수자는 USDT 매도자의 본인명의 계좌로 원화를 직접 이체합니다. 포블은 원화 수취자가 아니며 원화 대금을 보관하거나 정산하지 않습니다."],
         ["원화 입금 후 무엇을 해야 하나요?", "USDT 매수자는 원화 이체 후 서비스 화면에서 이체확인증을 등록해야 합니다. 이체확인증에는 거래금액, 송금일시, 수취인, 수취계좌, 금융기관, 거래번호 등 확인에 필요한 정보가 포함되어야 합니다."],
-        ["이체확인증을 등록하면 원화 입금이 확정되나요?", "이체확인증 등록만으로 원화 입금이 확정되는 것은 아닙니다. 포블의 이체확인증 확인은 거래진행 조건 확인 절차이며, 실제 원화 입금 보증을 의미하지 않습니다."],
+        ["이체확인증을 등록하면 원화 입금이 확정되나요?", "이체확인증 등록만으로 원화 입금이 확정되는 것은 아닙니다. 포블의 이체확인증 확인은 거래진행 조건 확인 절차이며, 실제 원화 입금 보증을 의미하지 않습니다. 이체확인증이 정상이어도 USDT 매도자의 입금확인 버튼이 눌리기 전에는 관리자가 최종 승인하거나 니모닉 열람을 활성화할 수 없습니다."],
         ["USDT 매도자는 원화 입금을 어떻게 확인하나요?", "USDT 매도자는 본인 명의 계좌에서 실제 원화 입금 여부, 금액, 입금자명, 입금시각, 거래조건 일치 여부를 직접 확인한 뒤 입금확인 또는 이체확인 완료 버튼을 클릭해야 합니다."],
         ["제3자 명의 입금은 가능한가요?", "허용되지 않습니다. 제3자 명의 입금, 입금자명 불일치, 차명거래가 의심되는 경우 거래는 보류 또는 분쟁검토 상태로 전환될 수 있습니다."],
         ["어떤 경우 분쟁검토로 전환되나요?", "원화 미입금, USDT 매도자 입금 미확인, 이체확인증 불충분, 위조 의심, 제3자 입금, USDT 수량 불일치, 수수료 미입금, 지갑주소 오류, 니모닉 열람 관련 이의가 있으면 보류 또는 분쟁검토로 전환될 수 있습니다."],
@@ -1831,12 +1854,20 @@ function wireInteractions() {
   });
 
   const globalSearch = document.getElementById("globalSearch");
-  globalSearch.addEventListener("input", applySearch);
-  globalSearch.addEventListener("search", applySearch);
-  globalSearch.addEventListener("change", applySearch);
-  globalSearch.addEventListener("keyup", applySearch);
-  document.getElementById("downloadJson").addEventListener("click", () => download("usdt-safe-trade-sequence.json", JSON.stringify(makeExportData(), null, 2), "application/json"));
-  document.getElementById("downloadMd").addEventListener("click", () => download("usdt-safe-trade-sequence-summary.md", makeMarkdown(), "text/markdown"));
+  if (globalSearch) {
+    globalSearch.addEventListener("input", applySearch);
+    globalSearch.addEventListener("search", applySearch);
+    globalSearch.addEventListener("change", applySearch);
+    globalSearch.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      moveSearchResult(event.shiftKey ? -1 : 1);
+    });
+  }
+  document.getElementById("searchPrev")?.addEventListener("click", () => moveSearchResult(-1));
+  document.getElementById("searchNext")?.addEventListener("click", () => moveSearchResult(1));
+  document.getElementById("downloadJson")?.addEventListener("click", () => download("usdt-safe-trade-sequence.json", JSON.stringify(makeExportData(), null, 2), "application/json"));
+  document.getElementById("downloadMd")?.addEventListener("click", () => download("usdt-safe-trade-sequence-summary.md", makeMarkdown(), "text/markdown"));
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -1889,6 +1920,7 @@ function applySearch() {
     targets.forEach((node) => node.classList.remove("filtered-out", "match-hit"));
     document.querySelectorAll(".nav-link").forEach((link) => link.classList.remove("search-hit"));
     if (summary) summary.textContent = "";
+    setSearchResults([]);
     return;
   }
 
@@ -1924,6 +1956,52 @@ function applySearch() {
       ? `${matchedSectionIds.size}개 섹션 · ${matchedTargetCount}개 항목 검색됨`
       : "일치하는 본문이 없습니다";
   }
+  setSearchResults(getVisibleSearchHighlights(), { scroll: true });
+}
+
+function getVisibleSearchHighlights() {
+  return Array.from(document.querySelectorAll("mark.search-highlight")).filter(
+    (mark) => !mark.closest(".search-section-miss, .filtered-out, .hidden")
+  );
+}
+
+function setSearchResults(marks, options = {}) {
+  searchResultMarks.forEach((mark) => mark.classList.remove("active-search-highlight"));
+  searchResultMarks = marks;
+  activeSearchResultIndex = marks.length ? 0 : -1;
+  updateSearchNavigation();
+  if (options.scroll && marks.length) scrollToSearchResult(activeSearchResultIndex);
+}
+
+function moveSearchResult(direction) {
+  if (!searchResultMarks.length) return;
+  activeSearchResultIndex = (activeSearchResultIndex + direction + searchResultMarks.length) % searchResultMarks.length;
+  updateSearchNavigation();
+  scrollToSearchResult(activeSearchResultIndex);
+}
+
+function updateSearchNavigation() {
+  searchResultMarks.forEach((mark, index) => {
+    mark.classList.toggle("active-search-highlight", index === activeSearchResultIndex);
+  });
+
+  const count = document.getElementById("searchCount");
+  const prev = document.getElementById("searchPrev");
+  const next = document.getElementById("searchNext");
+  const hasResults = searchResultMarks.length > 0;
+
+  if (count) {
+    count.textContent = hasResults ? `${activeSearchResultIndex + 1} / ${searchResultMarks.length}` : "0 / 0";
+  }
+  [prev, next].forEach((button) => {
+    if (button) button.disabled = !hasResults;
+  });
+}
+
+function scrollToSearchResult(index) {
+  const mark = searchResultMarks[index];
+  if (!mark) return;
+  mark.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
 }
 
 function getSearchTerms(query) {

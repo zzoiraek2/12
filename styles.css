@@ -12,6 +12,8 @@
   --ok: #15803d;
   --warn: #ca8a04;
   --shadow: 0 16px 40px rgba(24, 35, 34, 0.08);
+  --sidebar-width: 280px;
+  --topbar-height: 92px;
 }
 
 * {
@@ -45,7 +47,7 @@ input {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   min-height: 100vh;
 }
@@ -59,10 +61,15 @@ input {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  height: var(--topbar-height);
   padding: 18px 28px;
   border-bottom: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
+}
+
+.topbar > div:first-child {
+  min-width: 0;
 }
 
 .topbar h1,
@@ -76,6 +83,13 @@ input {
   font-size: 22px;
 }
 
+.topbar .eyebrow,
+.topbar h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .eyebrow {
   margin: 0 0 4px;
   color: var(--brand-2);
@@ -87,7 +101,19 @@ input {
 .topbar-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 auto;
   gap: 8px;
+  min-width: 360px;
+}
+
+.topbar-search {
+  position: relative;
+  width: min(560px, 100%);
+}
+
+.topbar-search .search-box {
+  width: 100%;
 }
 
 .version-pill,
@@ -151,10 +177,13 @@ input {
 }
 
 .sidebar {
-  position: sticky;
-  top: 75px;
-  align-self: start;
-  height: calc(100vh - 75px);
+  position: fixed;
+  top: var(--topbar-height);
+  bottom: 0;
+  left: 0;
+  z-index: 15;
+  width: var(--sidebar-width);
+  height: auto;
   padding: 18px;
   border-right: 1px solid var(--line);
   overflow: auto;
@@ -166,13 +195,14 @@ input {
   align-items: center;
   gap: 8px;
   height: 42px;
-  padding: 0 12px;
+  padding: 0 8px 0 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
 }
 
 .search-box input {
+  min-width: 0;
   width: 100%;
   border: 0;
   outline: 0;
@@ -180,18 +210,65 @@ input {
   color: var(--text);
 }
 
-.search-summary {
-  min-height: 18px;
-  margin-top: 8px;
+.search-nav {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.search-count {
+  min-width: 42px;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.search-nav-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f8fbfb;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.search-nav-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.search-nav-button:hover:not(:disabled) {
+  border-color: #9fb4b8;
+  background: var(--surface-2);
+}
+
+.search-nav-button:disabled {
+  color: #9aa8a6;
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.search-summary {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 #navList {
   display: grid;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .nav-link {
@@ -219,6 +296,8 @@ input {
 }
 
 .content {
+  grid-column: 2;
+  grid-row: 2;
   display: grid;
   gap: 18px;
   min-width: 0;
@@ -229,7 +308,7 @@ input {
 .section-panel {
   min-width: 0;
   max-width: 100%;
-  scroll-margin-top: 112px;
+  scroll-margin-top: calc(var(--topbar-height) + 32px);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1244,6 +1323,12 @@ code {
   -webkit-box-decoration-break: clone;
 }
 
+.search-highlight.active-search-highlight {
+  background: #fb923c;
+  color: #111827;
+  box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.35);
+}
+
 @media (max-width: 1180px) {
   .hero-panel,
   .two-column,
@@ -1278,11 +1363,19 @@ code {
     position: static;
     align-items: flex-start;
     flex-direction: column;
+    height: auto;
     padding: 16px;
+  }
+
+  .topbar-actions,
+  .topbar-search {
+    width: 100%;
+    min-width: 0;
   }
 
   .sidebar {
     position: static;
+    width: auto;
     height: auto;
     border-right: 0;
     border-bottom: 1px solid var(--line);
@@ -1293,6 +1386,8 @@ code {
   }
 
   .content {
+    grid-column: 1;
+    grid-row: auto;
     padding: 14px;
   }
 

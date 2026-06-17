@@ -1122,23 +1122,29 @@ tr:last-child td {
 
 #messengerTable table {
   table-layout: fixed;
+  min-width: 0;
 }
 
 #messengerTable th:nth-child(1),
 #messengerTable td:nth-child(1) {
-  width: 28%;
+  width: 22%;
 }
 
 #messengerTable th:nth-child(2),
 #messengerTable td:nth-child(2) {
-  width: 72px;
-  min-width: 72px;
+  width: 112px;
+  min-width: 112px;
   white-space: nowrap;
 }
 
 #messengerTable th:nth-child(3),
 #messengerTable td:nth-child(3) {
   width: auto;
+  padding-left: 20px;
+  padding-right: 22px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 code {

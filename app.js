@@ -465,6 +465,18 @@ const appData = {
         ["증빙/로그", ["이체확인증, 계좌정보, 접근 로그, ARS 결과, TXID는 분쟁/감사 목적으로 보관될 수 있다.", "첨부파일은 허용 확장자와 용량 정책을 따르며, 운영/준법 권한자만 열람할 수 있다."]],
         ["운영 감사", ["운영자 설정 변경, 정산 변경, 분쟁 처리, 첨부파일 열람은 모두 감사 로그를 남긴다."]]
       ]
+    },
+    {
+      id: "privacy-consent",
+      title: "개인정보 수집·이용·제공 동의",
+      badge: "개인정보",
+      purpose: "USDT 안전거래 이용 시 필요한 개인정보 수집·이용, 제공, 증빙자료 활용 동의 문서"
+    },
+    {
+      id: "privacy-policy",
+      title: "개인정보 처리방침 특칙",
+      badge: "개인정보",
+      purpose: "FOBL MATCH 서비스에 적용되는 개인정보 처리 기준 특칙 문서"
     }
   ],
   idempotency: [
@@ -886,6 +898,7 @@ let selectedStepId = "improved-precheck";
 let selectedRole = "all";
 let selectedPolicyDocId = "terms";
 let selectedSequenceId = "improved";
+let currentPolicyRenderId = 0;
 
 function escapeHtml(value) {
   return String(value)
@@ -959,6 +972,149 @@ function articleClauseContent(body) {
   }
 
   return `<p>${escapeHtml(body)}</p>`;
+}
+
+function parseMarkdownTable(lines, startIndex) {
+  const splitRow = (line) =>
+    line
+      .trim()
+      .replace(/^\|/, "")
+      .replace(/\|$/, "")
+      .split("|")
+      .map((cell) => cell.trim());
+  const headers = splitRow(lines[startIndex]);
+  const rows = [];
+  let index = startIndex + 2;
+
+  while (index < lines.length && lines[index].trim().startsWith("|")) {
+    rows.push(splitRow(lines[index]));
+    index += 1;
+  }
+
+  return {
+    html: `<div class="table-wrap markdown-table">${renderTable(headers, rows)}</div>`,
+    nextIndex: index
+  };
+}
+
+function markdownToPolicyHtml(markdown) {
+  const lines = markdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").split("\n");
+  const html = [];
+  let index = 0;
+  let skippedTitle = false;
+
+  while (index < lines.length) {
+    const rawLine = lines[index];
+    const line = rawLine.trim();
+
+    if (!line) {
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith("```")) {
+      const code = [];
+      index += 1;
+      while (index < lines.length && !lines[index].trim().startsWith("```")) {
+        code.push(lines[index]);
+        index += 1;
+      }
+      html.push(`<pre class="markdown-code"><code>${escapeHtml(code.join("\n"))}</code></pre>`);
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith("|") && lines[index + 1] && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[index + 1])) {
+      const table = parseMarkdownTable(lines, index);
+      html.push(table.html);
+      index = table.nextIndex;
+      continue;
+    }
+
+    if (/^---+$/.test(line)) {
+      index += 1;
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      if (heading[1].length === 1 && !skippedTitle) {
+        skippedTitle = true;
+        index += 1;
+        continue;
+      }
+      const level = Math.min(heading[1].length + 2, 5);
+      html.push(`<h${level}>${escapeHtml(heading[2])}</h${level}>`);
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith(">")) {
+      const quote = [];
+      while (index < lines.length && lines[index].trim().startsWith(">")) {
+        quote.push(lines[index].trim().replace(/^>\s?/, ""));
+        index += 1;
+      }
+      html.push(`<blockquote>${quote.map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</blockquote>`);
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^\s*\d+\.\s+/.test(lines[index])) {
+        items.push(lines[index].replace(/^\s*\d+\.\s+/, "").trim());
+        index += 1;
+      }
+      html.push(`<ol class="article-number-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`);
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^\s*[-*]\s+/.test(lines[index])) {
+        items.push(lines[index].replace(/^\s*[-*]\s+/, "").trim());
+        index += 1;
+      }
+      html.push(`<ul class="article-bullet-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`);
+      continue;
+    }
+
+    const paragraph = [line];
+    index += 1;
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !/^(#{1,4})\s+/.test(lines[index].trim()) &&
+      !lines[index].trim().startsWith("|") &&
+      !lines[index].trim().startsWith(">") &&
+      !lines[index].trim().startsWith("```") &&
+      !/^\s*(\d+\.|[-*])\s+/.test(lines[index])
+    ) {
+      paragraph.push(lines[index].trim());
+      index += 1;
+    }
+    html.push(`<p>${escapeHtml(paragraph.join(" "))}</p>`);
+  }
+
+  return `<div class="markdown-body">${html.join("")}</div>`;
+}
+
+async function loadMarkdownArticle(article, renderId) {
+  const body = document.querySelector("#policyDocs .policy-article-body");
+  if (!body) return;
+
+  try {
+    const response = await fetch(article.markdownUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const markdown = await response.text();
+    if (renderId !== currentPolicyRenderId) return;
+    body.innerHTML = markdownToPolicyHtml(markdown);
+    replaceIcons();
+    applySearch();
+  } catch (error) {
+    if (renderId !== currentPolicyRenderId) return;
+    body.innerHTML = `<p class="markdown-error">문서를 불러오지 못했습니다. 배포 경로에 ${escapeHtml(article.markdownUrl)} 파일이 포함되어 있는지 확인해주세요.</p>`;
+  }
 }
 
 function getPolicyPopup(doc) {
@@ -1075,6 +1231,20 @@ function getPolicyPopup(doc) {
 
 function getPolicyArticle(doc) {
   const articles = {
+    "privacy-consent": {
+      title: "USDT 안전거래 개인정보 수집·이용 및 제공 동의서",
+      meta: "개인정보 동의",
+      intro: "USDT 안전거래 중개 서비스 이용 시 고객 화면에서 별도로 동의받기 위한 문서입니다.",
+      markdownUrl: "./usdt_safe_trade_privacy_consent.md",
+      notice: "원문 MD 파일을 기준으로 렌더링됩니다. 체크박스, 필수/선택 여부, 동의 거부 시 제한사항, 동의 버전 저장 항목은 서비스 화면 구현 시 함께 반영해야 합니다."
+    },
+    "privacy-policy": {
+      title: "개인정보 처리방침 특칙",
+      meta: "개인정보 방침",
+      intro: "포블의 기존 개인정보 처리방침에 부속되는 FOBL MATCH 서비스 특칙 문서입니다.",
+      markdownUrl: "./usdt_safe_trade_privacy_policy.md",
+      notice: "원문 MD 파일을 기준으로 렌더링됩니다. 최종 게시 전 법무·준법·개인정보보호 담당 검토가 필요합니다."
+    },
     terms: {
       title: "서비스 이용약관",
       meta: "약관 게시글",
@@ -1681,6 +1851,7 @@ function renderOperations() {
 }
 
 function renderPolicyDocs() {
+  const renderId = ++currentPolicyRenderId;
   const activeDoc = appData.policyDocs.find((doc) => doc.id === selectedPolicyDocId) || appData.policyDocs[0];
   const article = getPolicyArticle(activeDoc);
   const popup = getPolicyPopup(activeDoc);
@@ -1708,6 +1879,10 @@ function renderPolicyDocs() {
           <p>${escapeHtml(article.intro)}</p>
         </header>
         <div class="policy-article-body">
+          ${
+            article.markdownUrl
+              ? `<p class="markdown-loading">문서를 불러오는 중입니다.</p>`
+              : `
           ${(article.paragraphs || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}
           ${(article.clauses || [])
             .map(
@@ -1750,6 +1925,8 @@ function renderPolicyDocs() {
               `
             )
             .join("")}
+              `
+          }
         </div>
         <div class="article-notice">${icon("info")}<p>${escapeHtml(article.notice)}</p></div>
       </article>
@@ -1797,6 +1974,7 @@ function renderPolicyDocs() {
   `;
   replaceIcons();
   applySearch();
+  if (article?.markdownUrl) loadMarkdownArticle(article, renderId);
 }
 
 function renderBackend() {

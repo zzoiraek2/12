@@ -735,6 +735,65 @@ input {
   color: #075985;
 }
 
+.markdown-body {
+  display: grid;
+  gap: 14px;
+}
+
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5 {
+  margin: 6px 0 0;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.markdown-body h3 {
+  font-size: 18px;
+}
+
+.markdown-body h4 {
+  font-size: 15px;
+}
+
+.markdown-body h5 {
+  font-size: 14px;
+}
+
+.markdown-body blockquote {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid #38bdf8;
+  border-radius: 6px;
+  background: #f0f9ff;
+}
+
+.markdown-code {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.markdown-table {
+  margin-top: 2px;
+}
+
+.markdown-loading,
+.markdown-error {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfdfd;
+}
+
 .policy-popup-header {
   display: grid;
   gap: 8px;

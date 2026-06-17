@@ -1791,7 +1791,7 @@ async function renderMermaid() {
   }
 }
 
-function scrollToSection(id, behavior = "smooth") {
+function scrollToSection(id, behavior = "auto") {
   const target = document.getElementById(id);
   if (!target) return;
   target.scrollIntoView({ block: "start", behavior });

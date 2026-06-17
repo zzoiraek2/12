@@ -616,6 +616,28 @@ input {
   gap: 14px;
 }
 
+.policy-doc-nav {
+  display: grid;
+  gap: 14px;
+}
+
+.policy-doc-group {
+  display: grid;
+  gap: 8px;
+}
+
+.policy-doc-group + .policy-doc-group {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.policy-doc-group h3 {
+  margin: 0;
+  color: var(--brand-2);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .policy-doc-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

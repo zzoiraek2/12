@@ -180,6 +180,14 @@ input {
   color: var(--text);
 }
 
+.search-summary {
+  min-height: 18px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 #navList {
   display: grid;
   gap: 8px;
@@ -1205,8 +1213,35 @@ code {
 }
 
 .match-hit {
-  outline: 2px solid #facc15;
+  outline: 2px solid #f5c542;
   outline-offset: 2px;
+}
+
+.search-section-miss {
+  display: none !important;
+}
+
+.nav-link.search-hit {
+  border-color: #f5c542;
+  background: #fff8dc;
+}
+
+.nav-link.search-hit::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #d97706;
+}
+
+.search-highlight {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: #fde68a;
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 @media (max-width: 1180px) {

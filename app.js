@@ -57,188 +57,13 @@ const appData = {
     ["CANCELED", "취소완료", "취소 처리"],
     ["DISPUTE_REVIEW", "분쟁검토", "분쟁 또는 예외 검토"]
   ],
-  steps: [
-    {
-      id: "request",
-      index: "신청",
-      title: "거래신청",
-      state: "거래신청",
-      summary: "매수자 또는 매도자가 금액대를 선택하고 매칭 큐에 진입한다.",
-      buyer: ["금액 선택 후 USDT 매수 거래신청", "신청 후 상태메시지 확인", "동일 금액대 매도자 매칭 대기"],
-      seller: ["금액 선택 후 USDT 매도 거래신청", "신청 후 상태메시지 확인", "동일 금액대 매수자 매칭 대기"],
-      system: ["REQUESTED_BUY 또는 REQUESTED_SELL 생성", "신청시간 기준 대기열 저장", "동일 금액대 반대 주문 탐색"],
-      buttons: ["매수 거래신청", "매도 거래신청", "신청취소"],
-      messages: ["매수 거래를 신청하였습니다.", "매도 거래를 신청하였습니다.", "거래신청을 취소하였습니다."],
-      ops: ["취소 횟수 제한 대상 여부 자동 확인", "금액대별 신청 수와 평균 대기시간 모니터링"],
-      completion: "동일 금액대 상대방이 확인되면 매칭 후보 확정",
-      exceptions: ["거래제한 회원, 점검, 한도 초과 시 신청 차단", "신청취소 시 본인은 거래없음으로 복귀"]
-    },
-    {
-      id: "step1",
-      index: "STEP1",
-      title: "매칭확정 확인",
-      state: "매칭준비중",
-      summary: "양측이 매칭 메시지, 약관/PIN, ARS 고객 동의를 완료해 매칭을 확정한다.",
-      buyer: ["매칭 결과 확인", "매칭 메시지 보내기", "약관 확인 후 PIN 6자리 입력", "ARS 거래확정 동의"],
-      seller: ["매칭 결과 확인", "매칭 메시지 보내기", "약관 확인 후 PIN 6자리 입력", "ARS 거래확정 동의"],
-      system: ["MATCH_PREPARING 진입", "양측 메시지 송신 여부 기록", "PIN 검증 및 확정서명 저장", "ARS 동의/동의안함/응답없음 기록", "조건 충족 시 MATCH_CONFIRMED"],
-      buttons: ["매칭취소", "매칭 메시지 보내기", "동의 및 PIN 제출"],
-      messages: [
-        "상대 거래자와 매칭되었습니다. 매칭 확정을 준비하세요.",
-        "매칭 메시지를 상대방에게 송신하였습니다.",
-        "매칭이 확정되었습니다. 매칭 확정 이후에는 임의로 취소할 수 없습니다."
-      ],
-      ops: ["거래확정 확인 대상 생성", "ARS 고객 동의 결과 기록: 동의 / 동의안함 / 응답없음", "PIN 미완료 건과 메시지 미송신 건 모니터링"],
-      completion: "buyer/seller message sent + buyer/seller terms signed + buyer/seller PIN verified + ARS consent",
-      exceptions: ["양측 PIN 완료 전에는 매칭취소 가능", "매칭취소 시 상대방은 기존 거래신청 상태로 복귀"]
-    },
-    {
-      id: "step2",
-      index: "STEP2",
-      title: "준비정보 생성",
-      state: "거래진행중",
-      summary: "매수자는 USDT 수령 지갑을 만들고, 매도자는 원화 수취 계좌를 인증한다.",
-      buyer: ["STEP2 이동", "지갑 생성 위임 동의", "지갑주소 생성하기 클릭"],
-      seller: ["STEP2 이동", "본인명의 원화 수취 계좌 입력", "1원 인증 수행"],
-      system: ["BUYER_WALLET_CREATED 기록", "니모닉 암호화 및 2-of-3 조각화", "SELLER_ACCOUNT_VERIFIED 기록"],
-      buttons: ["STEP2 이동", "지갑주소 생성하기", "1원 인증"],
-      messages: ["USDT 수령 지갑주소를 생성하였습니다.", "원화 수취 계좌 등록이 완료되었습니다.", "매도자가 입금계좌를 준비하였습니다."],
-      ops: ["지갑주소/니모닉 생성 실패 시 운영자 알림", "계좌 인증 실패 시 재시도 또는 운영자 검토"],
-      completion: "매수자 지갑 생성 완료 + 매도자 1원 인증 완료",
-      exceptions: ["지갑 생성은 거래당 1회만 허용", "계좌 불일치 또는 인증 실패 시 다음 단계 비활성화"]
-    },
-    {
-      id: "step3",
-      index: "STEP3",
-      title: "USDT 전송 확인",
-      state: "거래진행중",
-      summary: "매도자가 매수자 실제 수령 USDT를 매수자 지갑으로, 포블 수수료 USDT를 수수료 지갑으로 전송하고 포블이 블록체인 입금을 감시한다.",
-      buyer: ["USDT 입금 확인 대기", "정상 입금 상태메시지 확인", "STEP4 이동 준비"],
-      seller: ["매수자 실제 수령 USDT 수량 확인", "포블 수수료 지갑주소 확인", "매수자 지갑과 수수료 지갑으로 각각 전송"],
-      system: ["기준 USDT 수량에서 매도자 부담 수수료/프리미엄 차감", "SELLER_USDT_SENT_PENDING", "매수자 지갑 입금 모니터링", "수수료 지갑 입금 모니터링", "둘 다 확인되면 SELLER_USDT_CONFIRMED"],
-      buttons: ["STEP3 이동", "입금 완료 확인 대기", "STEP4 이동"],
-      messages: ["USDT 정상 입금이 확인되었습니다.", "USDT 입금 확인이 지연되고 있습니다. 거래소 확인 후 안내됩니다."],
-      ops: ["제한시간(30분) 초과 건, 수량 불일치 건 알림", "수수료 미입금이면 다음 STEP 차단"],
-      completion: "매수자 실제 수령 USDT 입금 + 포블 수수료 지갑 입금 모두 확인",
-      exceptions: ["본입금만 완료되면 수수료 입금 전까지 차단", "수량 부족·과입금·잘못된 네트워크는 운영자 검토"]
-    },
-    {
-      id: "step4",
-      index: "STEP4",
-      title: "원화 이체 확인",
-      state: "거래진행중",
-      summary: "매수자가 매도자 계좌로 원화를 이체하고, 확인증·매도자 확인·포블 검토를 맞춘다.",
-      buyer: ["매도자 계좌번호 확인", "본인명의 계좌에서 원화 이체", "이체확인증 첨부 및 동의 제출"],
-      seller: ["매수자 이체확인증 확인", "입금 금액 이상유무 확인", "이체확인 완료 클릭"],
-      system: ["BUYER_KRW_TRANSFER_PROOF_SUBMITTED", "SELLER_KRW_CONFIRMED", "FOBLGATE_TRANSFER_REVIEW_COMPLETED"],
-      buttons: ["STEP4 이동", "이체확인증 등록", "이체확인 완료", "STEP5 이동"],
-      messages: ["매도자의 계좌번호가 전달되었습니다.", "이체확인증이 등록되었습니다. 포블 검토 및 매도자 확인을 기다려주세요.", "이체 확인이 정상적으로 완료되었습니다."],
-      ops: ["이체확인증 파일 형식, 금액 OCR/수기 검토", "필요 시 유선으로 원화 수취 여부 확인"],
-      completion: "이체확인증 등록 + 매도자 이체확인 + 포블 검토 완료",
-      exceptions: ["금액 부족, 예금주 불일치, 확인증 위조 의심은 분쟁검토", "매도자 미확인은 알림 재발송 또는 유선 확인", "원화 입금 문제로 분쟁 전환 시 매도자 USDT 반환 요청 검토"]
-    },
-    {
-      id: "step5",
-      index: "STEP5",
-      title: "지갑 확인",
-      state: "거래진행중",
-      summary: "이체확인 검토 완료 후 매수자가 PIN을 재입력해 니모닉을 열람하며, 열람 시 거래 완료가 확정된다.",
-      buyer: ["이체확인 검토 완료 후 STEP5 진입", "PIN 재입력", "니모닉 열람", "열람 시 본인 지갑 소유 확인 및 거래 완료 확정"],
-      seller: ["매수자 지갑 확인 완료 대기", "완료 메시지 수신"],
-      system: ["이체확인 검토 완료 여부 확인", "BUYER_MNEMONIC_VIEWED", "니모닉 접근 로그 저장", "열람 시 TRADE_COMPLETED 처리"],
-      buttons: ["STEP5 이동", "니모닉 열람", "지갑 확인 완료"],
-      messages: ["지갑 니모닉이 열람되었습니다.", "니모닉 열람으로 거래 완료가 확정되었습니다.", "거래가 종료되었습니다."],
-      ops: ["최초 열람 시점부터 7일간만 열람 가능", "최대 3회 권장, PIN 실패 로그 감시", "7일 만료 후 재열람 불가"],
-      completion: "니모닉 최초 열람 시 거래완료 확정",
-      exceptions: ["7일 경과 후 일반/운영자 열람 모두 차단", "열람 이후 니모닉 보관/공유/분실 책임은 매수자에게 있음", "분쟁 중에는 니모닉 열람보다 거래 증빙과 보안 로그 검토를 우선"]
-    },
-    {
-      id: "complete",
-      index: "완료",
-      title: "거래완료",
-      state: "거래완료",
-      summary: "거래가 종료되고 감사·CS·분쟁 대응용 로그가 보관된다.",
-      buyer: ["거래 종료 확인", "필요 시 CS 문의 시 거래번호 제공"],
-      seller: ["거래 종료 확인", "원화 수취 및 거래 종료 기록 확인"],
-      system: ["TRADE_COMPLETED 유지", "상태 타임라인, 메신저 이력, 접근 로그 보관"],
-      buttons: ["완료 상태 조회", "로그 확인"],
-      messages: ["거래가 종료되었습니다."],
-      ops: ["상태 변경 이력, 메시지 이력, PIN/니모닉 로그 보관", "분쟁 발생 시 증빙 기반 판단"],
-      completion: "거래 종료",
-      exceptions: ["니모닉 열람 후 자산 분실 주장은 보안 로그 검토", "장기 분쟁은 운영자 티켓과 증빙 보관 기준 적용"]
-    }
-  ],
-  buttons: {
-    buyer: [
-      ["매수 거래신청", "거래없음", "로그인, KYC 완료, 거래제한 없음", "매수 신청 등록", "제한 회원, 점검, 한도 초과"],
-      ["신청취소", "거래신청", "거래신청 상태", "신청 삭제, 거래없음 복귀", "매칭준비중 이후 일부 조건"],
-      ["매칭취소", "매칭준비중", "양측 PIN 완료 전", "본인 거래없음, 상대방 거래신청 복귀", "매칭확정 이후"],
-      ["매칭 메시지 보내기", "STEP1", "매칭준비중 진입", "상대방에게 매수 의사 메시지 발송", "이미 발송"],
-      ["동의 및 PIN 제출", "STEP1", "양측 매칭 메시지 송신 완료", "약관동의 및 PIN 서명 저장", "상대방 메시지 미송신"],
-      ["지갑주소 생성하기", "STEP2", "지갑 생성 위임 동의", "매수자 소유 USDT 지갑 생성", "이미 생성"],
-      ["이체확인증 등록", "STEP4", "매도자 계좌 노출 후", "확인증 첨부 및 동의 저장", "파일 누락, 동의 미체크"],
-      ["니모닉 열람", "STEP5", "이체확인 검토 완료 후 PIN 재입력, 최초 열람 시점부터 7일 내", "니모닉 복호화 및 열람 제공, 거래완료 확정", "기간 만료, PIN 실패"],
-      ["지갑 확인 완료", "STEP5", "니모닉 열람 이후", "본인 지갑 소유 확인 기록", "니모닉 미열람"]
-    ],
-    seller: [
-      ["매도 거래신청", "거래없음", "로그인, KYC 완료, 거래제한 없음", "매도 신청 등록", "제한 회원, 점검, 한도 초과"],
-      ["신청취소", "거래신청", "거래신청 상태", "신청 삭제, 거래없음 복귀", "매칭준비중 이후 일부 조건"],
-      ["매칭취소", "매칭준비중", "양측 PIN 완료 전", "본인 거래없음, 상대방 거래신청 복귀", "매칭확정 이후"],
-      ["매칭 메시지 보내기", "STEP1", "매칭준비중 진입", "상대방에게 매도 의사 메시지 발송", "이미 발송"],
-      ["동의 및 PIN 제출", "STEP1", "양측 매칭 메시지 송신 완료", "약관동의 및 PIN 서명 저장", "상대방 메시지 미송신"],
-      ["1원 인증", "STEP2", "본인명의 계좌 입력", "원화 수취 계좌 검증", "계좌 불일치, 인증 실패"],
-      ["STEP3 이동", "STEP2 완료 후", "매수자 지갑 생성 + 매도자 계좌 인증 완료", "지갑주소 2개 노출", "지갑 미생성 또는 계좌 미인증"],
-      ["입금 완료 확인 대기", "STEP3", "USDT 전송 후", "블록체인 모니터링 대기", "수량 불일치"],
-      ["이체확인 완료", "STEP4", "매수자 이체확인증 등록 후", "원화 수취 확인 저장", "확인증 미등록 또는 금액 불일치"]
-    ]
-  },
-  statusMessages: [
-    ["매수 신청", "매수 거래를 신청하였습니다.", "-"],
-    ["매도 신청", "-", "매도 거래를 신청하였습니다."],
-    ["매칭 성립", "상대 거래자와 매칭되었습니다. 매칭 확정을 준비하세요.", "상대 거래자와 매칭되었습니다. 매칭 확정을 준비하세요."],
-    ["매칭확정", "매칭이 확정되었습니다. 매칭 확정 이후에는 임의로 취소할 수 없습니다.", "매칭이 확정되었습니다. 매칭 확정 이후에는 임의로 취소할 수 없습니다."],
-    ["매수자 지갑 생성", "USDT 수령 지갑주소를 생성하였습니다.", "상대방의 USDT 지갑주소 생성이 완료되었습니다."],
-    ["매도자 계좌 준비", "상대방의 입금계좌 준비가 완료되었습니다.", "원화 수취 계좌 등록이 완료되었습니다."],
-    ["USDT 입금 확인", "USDT 정상 입금이 확인되었습니다.", "USDT 정상 입금이 확인되었습니다."],
-    ["USDT 입금 지연", "상대방의 USDT 입금 확인이 지연되고 있습니다. 거래소 확인 후 안내됩니다.", "USDT 입금 확인이 지연되고 있습니다. 거래소 확인 후 안내됩니다."],
-    ["이체확인증 등록", "이체확인증이 등록되었습니다. 포블 검토 및 매도자 확인을 기다려주세요.", "매수자가 이체확인증을 등록하였습니다. 원화 수취 여부를 확인하세요."],
-    ["분쟁검토", "이체 확인에 추가 검토가 필요합니다. 거래소 안내를 기다려주세요.", "이체 확인에 추가 검토가 필요합니다. 거래소 안내를 기다려주세요."],
-    ["지갑 확인 완료", "지갑을 정상적으로 확인하였습니다.", "매수자가 지갑을 정상적으로 확인하였습니다."],
-    ["거래 종료", "거래가 종료되었습니다.", "거래가 종료되었습니다."]
-  ],
-  messenger: [
-    ["매수자 매칭 메시지 송신", "매도자", "USDT 매수 거래를 신청합니다. 매수 거래 약관에 동의해주세요."],
-    ["매도자 매칭 메시지 송신", "매수자", "USDT 매도 거래를 신청합니다. 매도 거래 약관에 동의해주세요."],
-    ["매수자 약관동의/PIN 완료", "매도자", "매수자가 USDT 매수 거래 약관에 동의하였습니다. 매도자 약관 동의와 PIN 제출을 완료해주세요."],
-    ["매도자 약관동의/PIN 완료", "매수자", "매도자가 USDT 매도 거래 약관에 동의하였습니다. 매수자 약관 동의와 PIN 제출을 완료해주세요."],
-    ["매도자 1원 인증 완료", "매수자", "매도자가 입금계좌를 준비하였습니다. 매수자 USDT 지갑주소 생성을 완료해주세요."],
-    ["매수자 지갑 생성 완료", "매도자", "매수자가 USDT 지갑주소를 생성하였습니다. 해당 지갑과 포블 수수료 지갑으로 USDT를 전송해주세요."],
-    ["매도자 USDT + 수수료 입금 완료", "매수자", "매도자가 USDT 전송을 완료하였습니다. 매도자 계좌로 원화를 이체하고 확인증을 등록해주세요."],
-    ["매수자 이체확인증 등록", "매도자", "매수자가 매도자의 계좌로 거래금액을 이체하였습니다. 원화 수취 여부를 확인해주세요."],
-    ["매도자 이체확인 완료", "매수자", "매도자가 매수자의 계좌이체를 확인하였습니다. 포블 검토 완료 후 니모닉을 열람해주세요."],
-    ["매수자 지갑 확인 완료", "매도자", "매수자가 지갑을 정상적으로 확인하였습니다. 거래 종료 내역을 확인해주세요."]
-  ],
-  monitoring: [
-    ["매칭", "동일 금액대 신청 존재 여부", "자동", "대기열 유지"],
-    ["매칭 진행 시간", "영업일 10:00~19:00 여부", "자동", "영업시간 외 신청은 대기열 유지"],
-    ["취소", "취소 횟수 및 제한 대상 여부", "자동", "제한 메시지 노출"],
-    ["약관/PIN", "양측 약관동의 및 PIN 서명 여부", "자동", "STEP2 비활성화"],
-    ["STEP1. 매칭확정 확인", "ARS 고객 동의 여부", "자동+수동", "동의/동의안함/응답없음 기록"],
-    ["지갑생성", "지갑주소/니모닉 생성 성공 여부", "자동", "운영자 알림"],
-    ["계좌인증", "매도자 본인명의 1원 인증 결과", "자동", "재시도 또는 운영자 검토"],
-    ["USDT 입금", "매수자 지갑 입금 여부", "자동", "지연 알림/운영자 확인"],
-    ["수수료 입금", "포블 수수료 지갑 입금 여부", "자동", "다음 STEP 차단"],
-    ["이체확인증", "첨부 여부, 파일 형식, 금액 OCR/수기 검토", "자동+수동", "분쟁검토"],
-    ["원화 수취", "매도자 확인 버튼", "수동", "미확인 알림"],
-    ["니모닉 열람", "열람 가능기간, PIN 검증, 접근 로그", "자동", "7일 만료 후 열람 차단"]
-  ],
   approvals: [
     ["매칭확정 확인", "시스템+운영자", "매칭확정 전", "ARS 동의/동의안함/응답없음"],
     ["STEP1-1 USDT 입금 지연 확인", "운영자", "제한시간(30분) 이내 미입금", "재진행/분쟁/취소검토"],
     ["수수료 입금 미확인", "운영자", "수수료 지갑 미입금", "재전송요청/보류"],
-    ["STEP1-2 이체확인증 검토", "운영자", "매수자 확인증 등록", "정상/보완요청/분쟁"],
+    ["STEP1-2 이체확인증 검토", "운영자", "USDT 매수자 이체확인증 등록", "정상/보완요청/분쟁"],
     ["분쟁 검토", "운영자+준법 필요 시", "금액 불일치, 확인 불가", "정상처리/거래중단/법적대응 검토"],
-    ["USDT 반환 요청 검토", "운영자+준법 필요 시", "원화 입금 문제로 매도자 반환 요청", "반환 가능/불가/추가증빙"]
+    ["USDT 반환 요청 검토", "운영자+준법 필요 시", "원화 입금 문제로 USDT 매도자 반환 요청", "반환 가능/불가/추가증빙"]
   ],
   policies: {
     cancel: [
@@ -270,10 +95,10 @@ const appData = {
     ["소비자 불만·분쟁처리 기록", "보관", "3년"]
   ],
   exceptions: [
-    ["USDT 입금 지연", [["제한시간(30분) 이내 미입금", "매도자에게 재전송 안내"], ["매수자 지갑만 입금", "수수료 입금 전까지 다음 단계 차단"], ["수수료만 입금", "매수자 지갑 입금 전까지 다음 단계 차단"], ["수량 부족", "운영자 확인 후 추가 입금 요청"], ["과입금", "운영자 검토 및 반환/정산 정책 적용"]]],
-    ["원화 이체 불일치", [["금액 부족", "보완 요청 또는 분쟁검토"], ["금액 초과", "초과분 반환 안내"], ["예금주 불일치", "분쟁검토, 제3자 입금 여부 확인"], ["이체확인증 위조 의심", "거래 보류, 운영자/준법 검토"], ["매도자 부인", "증빙과 유선 녹취 등 종합 검토"]]],
-    ["분쟁 상태 전환", [["USDT 입금 후 원화 미이체", "분쟁검토"], ["원화 이체 후 매도자 부인", "분쟁검토"], ["확인증 위조 의심", "분쟁검토"], ["제3자 명의 입금", "분쟁검토"], ["니모닉 열람 후 자산 분실 주장", "보안 로그 검토"]]],
-    ["USDT 반환 요청", [["원화 입금 미확인", "매도자 반환 요청 접수 후 증빙 확인"], ["이체확인증 위조 또는 불충분", "분쟁검토 및 반환 가능 여부 검토"], ["매수자 원화 미이체 확인", "USDT 반환 절차 검토"], ["고객 무귀책 반환", "반환 수수료 없이 입금 USDT 전액 반환"], ["분쟁 중 반환 요청", "운영자+준법 검토 전 임의 반환 금지"], ["반환 승인", "귀책 여부, TXID, 요청자, 승인자, 사유 로그 저장"]]]
+    ["USDT 입금 지연", [["제한시간(30분) 이내 미입금", "USDT 매도자에게 재전송 안내"], ["USDT 매수자 수령지갑만 입금", "수수료 입금 전까지 다음 단계 차단"], ["수수료만 입금", "USDT 매수자 수령지갑 입금 전까지 다음 단계 차단"], ["수량 부족", "운영자 확인 후 추가 입금 요청"], ["과입금", "운영자 검토 및 반환/정산 정책 적용"]]],
+    ["원화 이체 불일치", [["금액 부족", "보완 요청 또는 분쟁검토"], ["금액 초과", "초과분 반환 안내"], ["예금주 불일치", "분쟁검토, 제3자 입금 여부 확인"], ["이체확인증 위조 의심", "거래 보류, 운영자/준법 검토"], ["USDT 매도자 부인", "증빙과 유선 녹취 등 종합 검토"]]],
+    ["분쟁 상태 전환", [["USDT 입금 후 원화 미이체", "분쟁검토"], ["원화 이체 후 USDT 매도자 부인", "분쟁검토"], ["확인증 위조 의심", "분쟁검토"], ["제3자 명의 입금", "분쟁검토"], ["니모닉 열람 후 자산 분실 주장", "보안 로그 검토"]]],
+    ["USDT 반환 요청", [["원화 입금 미확인", "USDT 매도자 반환 요청 접수 후 증빙 확인"], ["이체확인증 위조 또는 불충분", "분쟁검토 및 반환 가능 여부 검토"], ["USDT 매수자 원화 미이체 확인", "USDT 반환 절차 검토"], ["고객 무귀책 반환", "반환 수수료 없이 입금 USDT 전액 반환"], ["분쟁 중 반환 요청", "운영자+준법 검토 전 임의 반환 금지"], ["반환 승인", "귀책 여부, TXID, 요청자, 승인자, 사유 로그 저장"]]]
   ],
   adminSettings: {
     trade: [
@@ -504,111 +329,6 @@ const appData = {
   ]
 };
 
-const currentMermaidSource = `sequenceDiagram
-    autonumber
-    actor Buyer as USDT 매수자
-    actor Seller as USDT 매도자
-    participant Foblgate as 포블거래소
-    participant Queue as 거래신청/매칭 큐
-    participant Messenger as 상태메시지/메신저
-    participant BuyWallet as USDT 매수자 USDT 지갑
-    participant FeeWallet as 포블 수수료 지갑
-    participant Chain as 블록체인 네트워크
-    participant Ops as 포블 운영자
-
-    Note over Buyer,Seller: 최초 상태: 거래없음
-
-    alt 매수신청으로 시작
-        Buyer->>Foblgate: [버튼] USDT 매수 거래신청
-        Foblgate->>Queue: REQUESTED_BUY 등록
-        Foblgate-->>Buyer: [상태메시지] 매수 거래를 신청하였습니다.
-        Seller->>Foblgate: [버튼] USDT 매도 거래신청
-        Foblgate->>Queue: 동일 금액대 매칭 후보 확인
-    else 매도신청으로 시작
-        Seller->>Foblgate: [버튼] USDT 매도 거래신청
-        Foblgate->>Queue: REQUESTED_SELL 등록
-        Foblgate-->>Seller: [상태메시지] 매도 거래를 신청하였습니다.
-        Buyer->>Foblgate: [버튼] USDT 매수 거래신청
-        Foblgate->>Queue: 동일 금액대 매칭 후보 확인
-    end
-
-    Foblgate->>Foblgate: 상태 변경: MATCH_PREPARING
-    Foblgate-->>Buyer: STEP1 매칭확정 확인
-    Foblgate-->>Seller: STEP1 매칭확정 확인
-
-    opt 양측 PIN 완료 전 취소
-        Buyer->>Foblgate: [버튼] 매칭취소
-        Foblgate->>Queue: 상대방 기존 신청 건 재대기
-        Foblgate-->>Seller: 상대방이 매칭을 취소했습니다.
-    end
-
-    Buyer->>Foblgate: [버튼] 매칭 메시지 보내기
-    Foblgate->>Messenger: 매수 의사 메시지 생성
-    Messenger-->>Seller: USDT 매수 거래를 신청합니다. 매수 거래 약관에 동의해주세요.
-    Seller->>Foblgate: [버튼] 매칭 메시지 보내기
-    Foblgate->>Messenger: 매도 의사 메시지 생성
-    Messenger-->>Buyer: USDT 매도 거래를 신청합니다. 매도 거래 약관에 동의해주세요.
-
-    Buyer->>Foblgate: [버튼] 동의 및 PIN 제출
-    Foblgate->>Foblgate: USDT 매수자 PIN 검증 및 서명 저장
-    Seller->>Foblgate: [버튼] 동의 및 PIN 제출
-    Foblgate->>Foblgate: USDT 매도자 PIN 검증 및 서명 저장
-    Foblgate->>Foblgate: 상태 변경: MATCH_CONFIRMED
-    Foblgate-->>Buyer: 매칭 확정 이후에는 임의 취소 불가
-    Foblgate-->>Seller: 매칭 확정 이후에는 임의 취소 불가
-
-    opt STEP1 매칭확정 확인
-        Foblgate->>Ops: ARS 고객 동의 대상 생성
-        Ops->>Buyer: ARS 거래확정 동의 요청
-        Ops->>Seller: ARS 거래확정 동의 요청
-        Ops->>Foblgate: 결과 등록
-    end
-
-    par STEP2 USDT 매수자 준비
-        Buyer->>Foblgate: [버튼] 지갑주소 생성하기
-        Foblgate->>BuyWallet: USDT 매수자 소유 USDT 지갑 생성
-        BuyWallet-->>Foblgate: 지갑주소 및 니모닉 생성
-        Foblgate->>Foblgate: 니모닉 암호화 및 2-of-3 조각화
-    and STEP2 USDT 매도자 준비
-        Seller->>Foblgate: 1원 인증 수행
-        Foblgate->>Foblgate: USDT 매도자 본인명의 계좌 검증
-    end
-
-    Seller->>BuyWallet: STEP3 USDT 선 전송
-    Seller->>FeeWallet: 수수료 USDT 전송
-    par 블록체인 모니터링
-        Foblgate->>Chain: USDT 매수자 지갑 입금 확인
-        Chain-->>Foblgate: 입금 확인
-    and 수수료 모니터링
-        Foblgate->>Chain: 수수료 지갑 입금 확인
-        Chain-->>Foblgate: 수수료 확인
-    end
-
-    alt 두 입금 모두 정상
-        Foblgate->>Messenger: USDT 전송 완료 메시지
-        Messenger-->>Buyer: USDT 매도자가 USDT 전송을 완료하였습니다.
-    else 지연 또는 수량 불일치
-        Foblgate->>Ops: USDT 입금 지연/불일치 알림
-        Ops->>Foblgate: 재진행/분쟁/보류 판단
-    end
-
-    Buyer->>Seller: STEP4 원화 이체
-    Buyer->>Foblgate: [버튼] 이체확인증 등록
-    Seller->>Foblgate: [버튼] 이체확인 완료
-    Ops->>Foblgate: 이체확인증 검토 완료
-
-    alt 확인증/수취 정상
-        Buyer->>Foblgate: STEP5 PIN 재입력
-        Foblgate-->>Buyer: 니모닉 열람
-        Foblgate->>Foblgate: 열람 시 본인 지갑 소유 확인 및 TRADE_COMPLETED
-        Foblgate-->>Buyer: 거래가 종료되었습니다.
-        Foblgate-->>Seller: 거래가 종료되었습니다.
-    else 금액 불일치 또는 부인
-        Foblgate->>Ops: DISPUTE_REVIEW 전환
-        Seller->>Ops: 원화 입금 문제로 USDT 반환 요청
-        Ops->>Foblgate: 증빙/로그 기반 분쟁 및 반환 가능 여부 검토
-    end`;
-
 const improvedMermaidSource = `sequenceDiagram
     autonumber
     actor Buyer as USDT 매수자
@@ -719,7 +439,6 @@ const improvedMermaidSource = `sequenceDiagram
         Ops->>Foblgate: 이체확인증/TXID/로그 기반 분쟁 및 반환 검토
     end`;
 
-const legacyMermaidSource = currentMermaidSource;
 
 const sequenceVariants = [
   ["improved", "최종 거래 흐름", "개선된 단일 정책 기준 흐름", improvedMermaidSource]
@@ -2105,8 +1824,12 @@ function wireInteractions() {
     document.getElementById("mermaidSourceView").classList.toggle("hidden");
   });
 
-  document.getElementById("globalSearch").addEventListener("input", applySearch);
-  document.getElementById("downloadJson").addEventListener("click", () => download("usdt-safe-trade-sequence.json", JSON.stringify(appData, null, 2), "application/json"));
+  const globalSearch = document.getElementById("globalSearch");
+  globalSearch.addEventListener("input", applySearch);
+  globalSearch.addEventListener("search", applySearch);
+  globalSearch.addEventListener("change", applySearch);
+  globalSearch.addEventListener("keyup", applySearch);
+  document.getElementById("downloadJson").addEventListener("click", () => download("usdt-safe-trade-sequence.json", JSON.stringify(makeExportData(), null, 2), "application/json"));
   document.getElementById("downloadMd").addEventListener("click", () => download("usdt-safe-trade-sequence-summary.md", makeMarkdown(), "text/markdown"));
 
   const observer = new IntersectionObserver(
@@ -2126,12 +1849,155 @@ function wireInteractions() {
 }
 
 function applySearch() {
-  const query = document.getElementById("globalSearch").value.trim().toLowerCase();
-  document.querySelectorAll("[data-searchable], tbody tr").forEach((node) => {
-    const matched = !query || node.textContent.toLowerCase().includes(query);
-    node.classList.toggle("filtered-out", !matched);
-    node.classList.toggle("match-hit", Boolean(query && matched && node.matches("[data-searchable]")));
+  const input = document.getElementById("globalSearch");
+  const query = input.value.trim();
+  const summary = document.getElementById("searchSummary");
+  const sections = Array.from(document.querySelectorAll("main .section-panel"));
+  const targets = Array.from(
+    new Set(
+      document.querySelectorAll(
+        [
+          "[data-searchable]",
+          "tbody tr",
+          ".article-clause",
+          ".guide-step",
+          ".qa-item",
+          ".popup-topic",
+          ".markdown-body h2",
+          ".markdown-body h3",
+          ".markdown-body h4",
+          ".markdown-body p",
+          ".markdown-body li",
+          ".markdown-body td",
+          ".markdown-body th",
+          ".markdown-code"
+        ].join(", ")
+      )
+    )
+  );
+
+  clearSearchHighlights();
+
+  if (!query) {
+    sections.forEach((section) => section.classList.remove("search-section-hit", "search-section-miss"));
+    targets.forEach((node) => node.classList.remove("filtered-out", "match-hit"));
+    document.querySelectorAll(".nav-link").forEach((link) => link.classList.remove("search-hit"));
+    if (summary) summary.textContent = "";
+    return;
+  }
+
+  const terms = getSearchTerms(query);
+  const matchedSectionIds = new Set();
+  let matchedTargetCount = 0;
+
+  sections.forEach((section) => {
+    const matched = matchesSearch(section.textContent, terms);
+    section.classList.toggle("search-section-hit", matched);
+    section.classList.toggle("search-section-miss", !matched);
+    if (matched) {
+      matchedSectionIds.add(section.id);
+      highlightMatches(section, terms);
+    }
   });
+
+  targets.forEach((node) => {
+    const section = node.closest(".section-panel");
+    const matched = section && matchedSectionIds.has(section.id) && matchesSearch(node.textContent, terms);
+    node.classList.toggle("filtered-out", !matched);
+    node.classList.toggle("match-hit", matched && node.matches("[data-searchable]"));
+    if (matched) matchedTargetCount += 1;
+  });
+
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    const id = link.getAttribute("href")?.slice(1);
+    link.classList.toggle("search-hit", matchedSectionIds.has(id));
+  });
+
+  if (summary) {
+    summary.textContent = matchedSectionIds.size
+      ? `${matchedSectionIds.size}개 섹션 · ${matchedTargetCount}개 항목 검색됨`
+      : "일치하는 본문이 없습니다";
+  }
+}
+
+function getSearchTerms(query) {
+  return query
+    .normalize("NFKC")
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(Boolean)
+    .map((term) => ({
+      raw: term,
+      lower: term.toLowerCase(),
+      compact: compactSearchText(term)
+    }))
+    .filter((term, index, terms) => term.compact && terms.findIndex((item) => item.compact === term.compact) === index);
+}
+
+function compactSearchText(value) {
+  return String(value)
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "");
+}
+
+function matchesSearch(text, terms) {
+  const lower = String(text).normalize("NFKC").toLowerCase();
+  const compact = compactSearchText(text);
+  return terms.every((term) => lower.includes(term.lower) || compact.includes(term.compact));
+}
+
+function clearSearchHighlights() {
+  document.querySelectorAll("mark.search-highlight").forEach((mark) => {
+    const parent = mark.parentNode;
+    mark.replaceWith(document.createTextNode(mark.textContent));
+    if (parent) parent.normalize();
+  });
+}
+
+function highlightMatches(root, terms) {
+  const words = terms
+    .flatMap((term) => term.raw.split(/\s+/))
+    .map((term) => term.trim())
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  if (!words.length) return;
+
+  const pattern = `(${words.map(escapeRegExp).join("|")})`;
+  const matcher = new RegExp(pattern, "i");
+  const splitter = new RegExp(pattern, "gi");
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      const parent = node.parentElement;
+      if (!parent || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      if (parent.closest("mark, script, style, svg, input, textarea")) return NodeFilter.FILTER_REJECT;
+      return matcher.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach((node) => {
+    const fragment = document.createDocumentFragment();
+    const parts = node.nodeValue.split(splitter);
+    parts.forEach((part) => {
+      if (!part) return;
+      if (matcher.test(part)) {
+        const mark = document.createElement("mark");
+        mark.className = "search-highlight";
+        mark.textContent = part;
+        fragment.appendChild(mark);
+      } else {
+        fragment.appendChild(document.createTextNode(part));
+      }
+    });
+    node.replaceWith(fragment);
+  });
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function download(filename, content, type) {
@@ -2144,6 +2010,21 @@ function download(filename, content, type) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function makeExportData() {
+  const [sequenceId, sequenceLabel, sequenceDescription] = getSelectedSequenceVariant();
+  return {
+    ...appData,
+    sequence: {
+      id: sequenceId,
+      label: sequenceLabel,
+      description: sequenceDescription,
+      mermaid: getSelectedMermaidSource()
+    },
+    steps: getActiveSteps(),
+    policyImpact: improvedPolicyImpact
+  };
 }
 
 function makeMarkdown() {

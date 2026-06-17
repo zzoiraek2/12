@@ -250,6 +250,18 @@ const appData = {
       ["재열람", ["7일 경과 후 일반 사용자 화면 차단", "7일 만료 후 운영자 승인으로도 재열람 불가", "만료 이후 문의는 열람 제공이 아니라 접근 로그와 거래 증빙 검토로 처리"]]
     ]
   },
+  retentionRecords: [
+    ["상대방 화면 노출 계좌정보", "즉시 비노출 또는 마스킹", "노출 종료"],
+    ["상대방 화면 노출 이체확인 요약", "거래완료 후 마스킹", "30일 후 비노출 권장"],
+    ["매도자 수취계좌 원본", "암호화 분리보관", "5년"],
+    ["매수자 이체확인증 원본", "암호화 분리보관", "5년"],
+    ["매도자 입금확인 버튼 이력", "보관", "5년"],
+    ["약관동의·PIN·ARS 결과", "보관", "5년"],
+    ["거래금액·상태값·거래조건", "보관", "5년"],
+    ["지갑주소·TXID·수수료 입금내역", "보관", "5년"],
+    ["니모닉 열람 로그", "보관", "5년"],
+    ["소비자 불만·분쟁처리 기록", "보관", "3년"]
+  ],
   exceptions: [
     ["USDT 입금 지연", [["제한시간(30분) 이내 미입금", "매도자에게 재전송 안내"], ["매수자 지갑만 입금", "수수료 입금 전까지 다음 단계 차단"], ["수수료만 입금", "매수자 지갑 입금 전까지 다음 단계 차단"], ["수량 부족", "운영자 확인 후 추가 입금 요청"], ["과입금", "운영자 검토 및 반환/정산 정책 적용"]]],
     ["원화 이체 불일치", [["금액 부족", "보완 요청 또는 분쟁검토"], ["금액 초과", "초과분 반환 안내"], ["예금주 불일치", "분쟁검토, 제3자 입금 여부 확인"], ["이체확인증 위조 의심", "거래 보류, 운영자/준법 검토"], ["매도자 부인", "증빙과 유선 녹취 등 종합 검토"]]],
@@ -1593,6 +1605,7 @@ function renderMonitoring() {
 function renderPolicies() {
   document.getElementById("cancelPolicies").innerHTML = appData.policies.cancel.map(policyCard).join("");
   document.getElementById("securityPolicies").innerHTML = appData.policies.security.map(([title, items]) => policyCard([title, items], "shield-check")).join("");
+  document.getElementById("retentionTable").innerHTML = renderTable(["자료 유형", "거래완료 후 처리", "보존기간"], appData.retentionRecords);
 }
 
 function policyCard([title, items], iconName = "clipboard-list") {

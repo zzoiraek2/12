@@ -607,6 +607,47 @@ input {
   font-size: 13px;
 }
 
+.mobile-reference-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 20px;
+}
+
+.mobile-reference-card {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.mobile-reference-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 18;
+  object-fit: cover;
+  object-position: top center;
+  background: #f3f5f7;
+}
+
+.mobile-reference-card figcaption {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.mobile-reference-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.mobile-reference-card span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 #policyDocs {
   display: block;
   padding: 20px;
@@ -1444,6 +1485,7 @@ code {
   .matrix-grid,
   .model-grid,
   .document-grid,
+  .mobile-reference-grid,
   .kanban {
     grid-template-columns: 1fr;
   }

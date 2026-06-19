@@ -3,21 +3,21 @@ let activeSearchResultIndex = -1;
 
 const appData = {
   navigation: [
-    ["sequence", "전체 시퀀스", "git-branch"],
-    ["steps", "STEP 해석", "list-checks"],
-    ["states", "상태 정의", "workflow"],
-    ["buttons", "버튼 정책", "mouse-pointer-click"],
-    ["messages", "메시지", "messages-square"],
-    ["operator-messages", "운영자 메시지", "message-circle"],
-    ["mobile-uiux", "모바일 UIUX", "smartphone"],
+    ["sequence", "전체 시퀀스", "route"],
+    ["steps", "STEP 해석", "checklist"],
+    ["states", "상태 정의", "account_tree"],
+    ["buttons", "버튼 정책", "ads_click"],
+    ["messages", "메시지", "forum"],
+    ["operator-messages", "운영자 메시지", "support_agent"],
+    ["mobile-uiux", "모바일 UIUX", "phone_iphone"],
     ["monitoring", "모니터링/승인", "radar"],
-    ["cancel", "취소/패널티", "ban"],
-    ["security", "보안/로그", "shield-check"],
-    ["exceptions", "예외처리", "triangle-alert"],
+    ["cancel", "취소/패널티", "block"],
+    ["security", "보안/로그", "verified_user"],
+    ["exceptions", "예외처리", "warning"],
     ["admin-settings", "어드민 운영설계", "settings"],
-    ["settlement", "정산/수수료", "receipt-text"],
-    ["operations", "운영 관리", "clipboard-check"],
-    ["policy-docs", "정책문서", "book-open-check"],
+    ["settlement", "정산/수수료", "receipt_long"],
+    ["operations", "운영 관리", "fact_check"],
+    ["policy-docs", "정책문서", "menu_book"],
     ["backend", "개발 기준", "database"]
   ],
   traderDefinitions: [
@@ -877,6 +877,11 @@ function icon(name) {
   return `<i data-lucide="${name}"></i>`;
 }
 
+function materialIcon(name, className = "") {
+  const classes = ["material-symbols-rounded", "m3-symbol", className].filter(Boolean).join(" ");
+  return `<span class="${classes}" aria-hidden="true">${escapeHtml(name)}</span>`;
+}
+
 function getSelectedSequenceVariant() {
   return sequenceVariants.find(([id]) => id === selectedSequenceId) || sequenceVariants[0];
 }
@@ -1644,7 +1649,7 @@ function getPolicyArticle(doc) {
 
 function renderNavigation() {
   document.getElementById("navList").innerHTML = appData.navigation
-    .map(([id, label, iconName]) => `<a class="nav-link" href="#${id}">${icon(iconName)}<span>${label}</span></a>`)
+    .map(([id, label, iconName]) => `<a class="nav-link m3-nav-item" href="#${id}"><span class="nav-icon m3-nav-icon">${materialIcon(iconName)}</span><span>${label}</span></a>`)
     .join("");
 }
 
@@ -1819,6 +1824,7 @@ function renderMobileUiux() {
   document.getElementById("mobileLayoutTable").innerHTML = renderTable(["구분", "형태", "적용 기준"], appData.mobileUiux.layout);
   document.getElementById("mobileComponentTable").innerHTML = renderTable(["컴포넌트", "스타일 기준", "사용처"], appData.mobileUiux.components);
   document.getElementById("mobileConversionTable").innerHTML = renderTable(["PC 구조", "모바일 구조", "전환 기준"], appData.mobileUiux.conversion);
+  document.getElementById("m3StyleDemo").innerHTML = renderM3StyleDemo();
   document.getElementById("mobileReferenceGrid").innerHTML = appData.mobileUiux.references
     .map(
       ([title, src, caption]) => `
@@ -1832,6 +1838,39 @@ function renderMobileUiux() {
       `
     )
     .join("");
+}
+
+function renderM3StyleDemo() {
+  return `
+    <div class="m3-demo-copy" data-searchable>
+      <strong>로컬 Material Web + Material Symbols 적용 샘플</strong>
+      <span>버튼/FAB는 <code>md-*</code> 웹 컴포넌트, 아이콘은 Material Symbols Rounded를 사용한다. 실제 서비스 화면에서는 이 토큰을 기준으로 주요 CTA, 보조 CTA, 운영자 메시지 진입 버튼을 통일한다.</span>
+    </div>
+    <div class="m3-component-shelf" data-searchable>
+      <md-filled-button><md-icon slot="icon">check_circle</md-icon>매칭 확정</md-filled-button>
+      <md-filled-tonal-button><md-icon slot="icon">phone_in_talk</md-icon>ARS 동의</md-filled-tonal-button>
+      <md-outlined-button><md-icon slot="icon">upload_file</md-icon>증빙 등록</md-outlined-button>
+      <md-text-button><md-icon slot="icon">chevron_right</md-icon>상세 보기</md-text-button>
+    </div>
+    <div class="m3-component-shelf m3-fab-shelf" data-searchable>
+      <md-fab size="small" aria-label="운영자 메시지">
+        <md-icon slot="icon">support_agent</md-icon>
+      </md-fab>
+      <md-fab label="운영자 메시지">
+        <md-icon slot="icon">forum</md-icon>
+      </md-fab>
+      <button class="m3-fallback-fab" type="button">
+        ${materialIcon("support_agent")}
+        <span>운영자 메시지</span>
+      </button>
+    </div>
+    <div class="m3-token-grid" data-searchable>
+      <div><span class="m3-token-chip primary"></span><strong>Primary</strong><small>주요 확정/동의 CTA</small></div>
+      <div><span class="m3-token-chip secondary"></span><strong>Secondary</strong><small>보조 진행/상태 액션</small></div>
+      <div><span class="m3-token-chip surface"></span><strong>Surface</strong><small>카드, 바텀시트, 메뉴 배경</small></div>
+      <div><span class="m3-token-chip error"></span><strong>Error</strong><small>주의, 분쟁, 차단 배지</small></div>
+    </div>
+  `;
 }
 
 function renderMonitoring() {

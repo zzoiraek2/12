@@ -1387,4 +1387,80 @@ a {
     page-break-before: always;
     break-before: page;
   }
+
+  .section-band p,
+  .section-band span,
+  .section-band li,
+  .section-band small,
+  .section-band td,
+  .section-band th,
+  .closing-band p,
+  .closing-band span {
+    font-size: 9pt;
+    line-height: 1.46;
+  }
+
+  .section-band h3,
+  .section-band strong,
+  .section-band b,
+  .message-stack b,
+  .operator-copy h3,
+  .flow-rail strong,
+  .roadmap strong,
+  .economics-grid strong,
+  .settle-party b,
+  .settle-split strong {
+    font-size: 10pt;
+    line-height: 1.32;
+  }
+
+  .section-heading .eyebrow,
+  .section-band .eyebrow,
+  .closing-band .eyebrow {
+    font-size: 8.5pt;
+    line-height: 1.35;
+  }
+
+  .policy-table th,
+  .policy-table td {
+    font-size: 8.6pt;
+    line-height: 1.42;
+  }
+
+  .policy-table th {
+    font-weight: 900;
+  }
+
+  .policy-table td:first-child {
+    font-size: 8.6pt;
+    font-weight: 900;
+  }
+
+  .lane strong,
+  .lane span,
+  .state-node,
+  .state-node small {
+    font-size: 8.6pt;
+    line-height: 1.38;
+  }
+
+  .flow-rail b,
+  .roadmap b,
+  .economics-grid small {
+    font-size: 8.5pt;
+    line-height: 1.35;
+  }
+
+  .hero h1 {
+    font-size: 27pt;
+  }
+
+  .hero p:not(.eyebrow) {
+    font-size: 11pt;
+  }
+
+  .hero-actions span,
+  .print-meta {
+    font-size: 9pt;
+  }
 }

@@ -1002,10 +1002,17 @@ a {
 
 @page {
   size: A4;
-  margin: 11mm;
+  margin: 14mm 13mm 15mm;
 }
 
 @media print {
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
   html {
     scroll-behavior: auto;
   }
@@ -1013,8 +1020,8 @@ a {
   body {
     color: #111827;
     background: #fff;
-    font-size: 10.5pt;
-    line-height: 1.42;
+    font-size: 9.4pt;
+    line-height: 1.46;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1031,7 +1038,9 @@ a {
   }
 
   .hero {
-    min-height: auto;
+    display: flex;
+    align-items: center;
+    min-height: 268mm;
     page-break-after: always;
     break-after: page;
     color: #111827;
@@ -1044,31 +1053,33 @@ a {
 
   .hero-copy {
     width: 100%;
-    padding: 8mm 0 0;
+    padding: 0;
   }
 
   .hero .eyebrow,
   .eyebrow {
     color: #0b3b7d;
-    font-size: 8.5pt;
+    font-size: 8.2pt;
   }
 
   .hero h1 {
     max-width: none;
     color: #111827;
-    font-size: 25pt;
-    line-height: 1.18;
+    font-size: 27pt;
+    line-height: 1.16;
   }
 
   .hero p:not(.eyebrow) {
     max-width: none;
     color: #374151;
-    font-size: 11.2pt;
+    font-size: 11pt;
   }
 
   .hero-actions {
-    gap: 5mm;
-    margin-top: 10mm;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3mm;
+    margin-top: 12mm;
   }
 
   .hero-actions span {
@@ -1088,7 +1099,7 @@ a {
   .print-meta {
     display: flex;
     gap: 4mm;
-    margin-top: 14mm;
+    margin-top: 18mm;
     padding-top: 6mm;
     border-top: 1px solid #cbd5e1;
     color: #475569;
@@ -1100,19 +1111,22 @@ a {
   .closing-band {
     page-break-before: always;
     break-before: page;
+    width: 100%;
     color: #111827;
     background: #fff !important;
   }
 
   .section-heading {
     max-width: none;
-    margin-bottom: 6mm;
+    margin-bottom: 5mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid #cbd5e1;
   }
 
   .section-heading h2,
   .closing-band h2 {
-    font-size: 17pt;
-    line-height: 1.22;
+    font-size: 15pt;
+    line-height: 1.24;
   }
 
   .opportunity-grid,
@@ -1124,8 +1138,8 @@ a {
   .roadmap,
   .operator-layout,
   .settlement-diagram {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4mm;
+    grid-template-columns: 1fr;
+    gap: 3mm;
   }
 
   .opportunity-grid article,
@@ -1139,7 +1153,7 @@ a {
   .settle-party,
   .settle-split > div {
     min-height: auto;
-    padding: 5mm;
+    padding: 3.5mm;
     border-color: #cbd5e1;
     background: #fff !important;
     box-shadow: none;
@@ -1148,9 +1162,9 @@ a {
   }
 
   .brief-panel {
-    gap: 4mm;
-    margin-bottom: 5mm;
-    padding: 5mm;
+    gap: 3mm;
+    margin-bottom: 4mm;
+    padding: 4mm;
     border-color: #cbd5e1;
     background: #fff !important;
     box-shadow: none;
@@ -1160,7 +1174,7 @@ a {
 
   .brief-panel p {
     color: #374151;
-    font-size: 9.5pt;
+    font-size: 9pt;
   }
 
   .narrative-grid article,
@@ -1173,18 +1187,21 @@ a {
   .copy-columns h3,
   .principle-list b {
     color: #0b3b7d;
-    font-size: 11pt;
+    font-size: 10.2pt;
   }
 
   .narrative-grid p,
   .copy-columns p,
   .principle-list span {
     color: #475569;
-    font-size: 8.8pt;
+    font-size: 8.4pt;
   }
 
   .policy-table {
-    margin-top: 5mm;
+    width: 100%;
+    margin-top: 4mm;
+    table-layout: fixed;
+    border-collapse: collapse;
     border-color: #cbd5e1;
     border-radius: 0;
     box-shadow: none;
@@ -1194,9 +1211,10 @@ a {
 
   .policy-table th,
   .policy-table td {
-    padding: 3mm;
+    padding: 2.4mm;
     border-color: #cbd5e1;
-    font-size: 8.2pt;
+    font-size: 7.8pt;
+    white-space: normal;
   }
 
   .policy-table th {
@@ -1222,8 +1240,8 @@ a {
   .settlement-diagram {
     overflow: visible;
     box-shadow: none;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
   }
 
   .blueprint-canvas {
@@ -1235,13 +1253,14 @@ a {
   .blueprint-canvas svg {
     min-width: 0;
     width: 100%;
-    max-height: 235mm;
+    max-height: 160mm;
   }
 
   .architecture-map {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: 1fr;
     gap: 2mm;
-    padding: 3mm;
+    padding: 0;
+    border: 0;
     border-color: #cbd5e1;
     border-radius: 8px;
     background: #fff;
@@ -1249,9 +1268,11 @@ a {
 
   .lane {
     min-height: auto;
-    padding: 3mm;
+    padding: 2.4mm;
     border: 1px solid #cbd5e1;
     box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .lane::after {
@@ -1260,25 +1281,30 @@ a {
 
   .lane strong {
     min-height: auto;
-    font-size: 9pt;
+    padding-bottom: 1.5mm;
+    font-size: 8.8pt;
   }
 
   .lane span {
+    display: inline-block;
     min-height: auto;
-    padding: 2mm;
+    margin: 0 1mm 1mm 0;
+    padding: 1.4mm 1.8mm;
     font-size: 7.3pt;
   }
 
   .state-machine {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 3mm;
-    padding: 4mm;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2mm;
+    padding: 0;
+    border: 0;
+    background: #fff;
   }
 
   .state-node {
-    min-height: 22mm;
-    padding: 3mm;
-    font-size: 9pt;
+    min-height: auto;
+    padding: 2.8mm;
+    font-size: 8.5pt;
   }
 
   .state-node:not(:last-child)::after {
@@ -1286,14 +1312,34 @@ a {
   }
 
   .flow-rail {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: 1fr;
+    border-radius: 0;
   }
 
   .flow-rail li {
     min-height: auto;
-    padding: 4mm;
+    padding: 3mm;
     border-right: 1px solid #cbd5e1;
     border-bottom: 1px solid #cbd5e1;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .flow-rail strong,
+  .roadmap strong,
+  .economics-grid strong {
+    font-size: 10.5pt;
+  }
+
+  .settlement-diagram {
+    padding: 0;
+    border: 0;
+    background: #fff;
+  }
+
+  .settle-split {
+    grid-template-columns: 1fr;
   }
 
   .operator-band,

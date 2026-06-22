@@ -6,7 +6,7 @@
     <title>FOBL USDT 안전거래 시스템 기획서</title>
     <link rel="stylesheet" href="../vendor/fonts/pretendard/pretendard.css?v=20260622" />
     <link rel="stylesheet" href="../vendor/material-symbols/material-symbols-rounded.css?v=20260619-m3" />
-    <link rel="stylesheet" href="./styles.css?v=20260622-blueprint" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-print" />
   </head>
   <body>
     <header class="topbar">
@@ -23,6 +23,10 @@
         <a href="#economics">수익 구조</a>
         <a href="#roadmap">로드맵</a>
       </nav>
+      <button class="print-button" type="button" onclick="window.print()" aria-label="PDF 인쇄">
+        <span class="material-symbols-rounded" aria-hidden="true">print</span>
+        PDF 인쇄
+      </button>
     </header>
 
     <main id="top">
@@ -38,6 +42,11 @@
             <span><b>양측 확인</b> ARS/PIN 확정 검토</span>
             <span><b>직접대화 제한</b> 운영자 중개 구조</span>
             <span><b>증적 기반</b> 로그/감사 체계</span>
+          </div>
+          <div class="print-meta" aria-label="PDF 문서 정보">
+            <span>투자자 검토용</span>
+            <span>시스템 기획 초안</span>
+            <span>2026.06</span>
           </div>
         </div>
       </section>

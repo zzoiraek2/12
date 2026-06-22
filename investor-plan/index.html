@@ -3,75 +3,194 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FOBL USDT Safe Trade Investor Brief</title>
+    <title>FOBL USDT 안전거래 시스템 기획서</title>
     <link rel="stylesheet" href="../vendor/material-symbols/material-symbols-rounded.css?v=20260619-m3" />
-    <link rel="stylesheet" href="./styles.css?v=20260622-investor" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-blueprint" />
   </head>
   <body>
     <header class="topbar">
       <a class="brand" href="#top" aria-label="FOBL Safe Trade">
         <span class="material-symbols-rounded">verified_user</span>
-        <strong>FOBL Safe Trade</strong>
+        <strong>FOBL 안전거래</strong>
       </a>
       <nav aria-label="문서 섹션">
-        <a href="#system">System</a>
-        <a href="#flow">Flow</a>
-        <a href="#operator">Ops</a>
-        <a href="#economics">Economics</a>
-        <a href="#roadmap">Roadmap</a>
+        <a href="#opportunity">투자 포인트</a>
+        <a href="#system">기획 방향</a>
+        <a href="#blueprint">구조도</a>
+        <a href="#flow">거래 흐름</a>
+        <a href="#operator">운영</a>
+        <a href="#economics">수익 구조</a>
+        <a href="#roadmap">로드맵</a>
       </nav>
     </header>
 
     <main id="top">
       <section class="hero" aria-label="투자자용 시스템 기획서 요약">
         <div class="hero-copy">
-          <p class="eyebrow">Investor System Brief · USDT 안전거래 인프라</p>
-          <h1>원화와 USDT 사이의 불신을 운영 가능한 거래 확정성으로 바꾸는 매칭 인프라</h1>
+          <p class="eyebrow">투자자용 시스템 기획서 · USDT 안전거래 인프라</p>
+          <h1>원화와 USDT 사이의 거래 불확실성을 운영 가능한 안전거래 절차로 전환하는 시스템을 설계하고 있습니다</h1>
           <p>
-            FOBL Safe Trade는 매수자와 매도자를 직접 대화시키지 않고, ARS 동의, PIN 확정, 지갑/입금 검증,
-            운영자 메시지, 분쟁 증적을 하나의 거래 상태기계로 묶어 안전거래를 성립시키는 시스템이다.
+            FOBL Safe Trade는 매수자와 매도자의 직접 대화를 제한하고, ARS 동의, PIN 확정, 지갑/입금 검증,
+            운영자 메시지, 분쟁 증적을 하나의 거래 상태기계로 연결하는 방향으로 설계하고 있습니다.
           </p>
           <div class="hero-actions" aria-label="핵심 포인트">
-            <span><b>2-sided</b> ARS/PIN 확정</span>
-            <span><b>No direct chat</b> 운영자 중개</span>
-            <span><b>Audit ready</b> 증적 로그</span>
+            <span><b>양측 확인</b> ARS/PIN 확정 검토</span>
+            <span><b>직접대화 제한</b> 운영자 중개 구조</span>
+            <span><b>증적 기반</b> 로그/감사 체계</span>
           </div>
+        </div>
+      </section>
+
+      <section class="section-band opportunity-band" id="opportunity">
+        <div class="section-heading">
+          <p class="eyebrow">투자자 관점 핵심</p>
+          <h2>장외성 USDT 거래에서 반복되는 신뢰 문제를 거래소가 통제 가능한 운영 절차로 전환하는 방향을 검토하고 있습니다</h2>
+        </div>
+        <div class="opportunity-grid">
+          <article>
+            <b>01</b>
+            <h3>해결하려는 문제</h3>
+            <p>원화 입금 미확인, USDT 전송 후 취소 요구, 이체확인증 분쟁, 외부 연락 유도처럼 개인 간 거래에서 반복되는 불확실성을 줄이는 방안을 검토하고 있습니다.</p>
+          </article>
+          <article>
+            <b>02</b>
+            <h3>제안하는 접근</h3>
+            <p>매칭, ARS 동의, PIN 확인, 지갑주소 노출, 원화 증빙, 운영자 메시지를 하나의 거래번호 아래에서 순차적으로 통제하는 구조를 설계하고 있습니다.</p>
+          </article>
+          <article>
+            <b>03</b>
+            <h3>수익화 방향</h3>
+            <p>프리미엄과 양측 수수료를 수수료 지갑 및 정산 로그로 분리해, 거래량 증가에 따른 수익 추적과 회계 근거 확보를 목표로 하고 있습니다.</p>
+          </article>
+          <article>
+            <b>04</b>
+            <h3>개발 준비도</h3>
+            <p>정책 분석, 상태값, 버튼/메시지, 운영자 콘솔, 모바일 UIUX, 정산 산식까지 개발 과제로 전환할 수 있도록 정리하고 있습니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band blueprint-band" id="blueprint">
+        <div class="section-heading">
+          <p class="eyebrow">시스템 구조 기획</p>
+          <h2>고객 앱, 매칭 엔진, 운영자 콘솔, 정산/감사 레이어를 하나의 거래번호로 연결하는 구조를 설계하고 있습니다</h2>
+        </div>
+        <div class="blueprint-canvas" aria-label="전체 시스템 구조도">
+          <svg viewBox="0 0 1280 690" role="img" aria-label="FOBL Safe Trade 전체 시스템 구조도">
+            <defs>
+              <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+                <path d="M2 2 L10 6 L2 10 Z" fill="#0b3b7d" />
+              </marker>
+              <linearGradient id="boxBlue" x1="0" x2="1">
+                <stop offset="0" stop-color="#e7f0ff" />
+                <stop offset="1" stop-color="#f8fbff" />
+              </linearGradient>
+              <linearGradient id="boxGreen" x1="0" x2="1">
+                <stop offset="0" stop-color="#dff7f1" />
+                <stop offset="1" stop-color="#f8fffd" />
+              </linearGradient>
+              <linearGradient id="boxRed" x1="0" x2="1">
+                <stop offset="0" stop-color="#ffe8e7" />
+                <stop offset="1" stop-color="#fffafa" />
+              </linearGradient>
+              <linearGradient id="boxGold" x1="0" x2="1">
+                <stop offset="0" stop-color="#fff1d8" />
+                <stop offset="1" stop-color="#fffdfa" />
+              </linearGradient>
+            </defs>
+
+            <rect x="24" y="28" width="1232" height="634" rx="28" fill="#f8fbfd" stroke="#cbd8e2" />
+            <text x="62" y="76" class="svg-title">FOBL 안전거래 시스템 구조 기획</text>
+            <text x="62" y="104" class="svg-muted">하나의 거래번호에 동의, 지갑노출, 원화증빙, 정산, 분쟁, 감사로그를 연결하는 방향</text>
+
+            <rect x="62" y="144" width="220" height="410" rx="20" fill="url(#boxBlue)" stroke="#b7c9dc" />
+            <text x="92" y="184" class="svg-head">고객 앱</text>
+            <text x="92" y="224">매수자 지갑 생성위임</text>
+            <text x="92" y="258">매도자 계좌 인증</text>
+            <text x="92" y="292">ARS 동의 화면</text>
+            <text x="92" y="326">PIN 확인</text>
+            <text x="92" y="360">증빙 업로드</text>
+            <text x="92" y="394">니모닉 열람</text>
+            <text x="92" y="448" class="svg-chip">매수자-매도자 직접대화 제한</text>
+
+            <rect x="354" y="144" width="250" height="410" rx="20" fill="url(#boxGreen)" stroke="#aacfc5" />
+            <text x="384" y="184" class="svg-head">매칭·상태 엔진</text>
+            <text x="384" y="224">금액대 매칭</text>
+            <text x="384" y="258">매칭준비 상태</text>
+            <text x="384" y="292">ARS 결과 기록</text>
+            <text x="384" y="326">PIN 완료 조건</text>
+            <text x="384" y="360">매칭확정 잠금</text>
+            <text x="384" y="394">지갑주소 노출 규칙</text>
+            <text x="384" y="428">분쟁 상태 전환</text>
+            <text x="384" y="462" class="svg-chip green">서버 상태전이 검증 검토</text>
+
+            <rect x="676" y="144" width="250" height="410" rx="20" fill="url(#boxRed)" stroke="#e3b7b2" />
+            <text x="706" y="184" class="svg-head">운영자 콘솔</text>
+            <text x="706" y="224">매수자 채널</text>
+            <text x="706" y="258">매도자 채널</text>
+            <text x="706" y="292">내부 메모</text>
+            <text x="706" y="326">템플릿 발송</text>
+            <text x="706" y="360">증빙 검토</text>
+            <text x="706" y="394">반환 요청 검토</text>
+            <text x="706" y="428">분쟁 증적 연결</text>
+            <text x="706" y="462" class="svg-chip red">운영자 중개 소통 구조</text>
+
+            <rect x="998" y="144" width="220" height="410" rx="20" fill="url(#boxGold)" stroke="#e2c795" />
+            <text x="1028" y="184" class="svg-head">정산·감사</text>
+            <text x="1028" y="224">수수료 지갑 TXID</text>
+            <text x="1028" y="258">프리미엄 장부</text>
+            <text x="1028" y="292">매수자 수령수량</text>
+            <text x="1028" y="326">매도자 전송수량</text>
+            <text x="1028" y="360">보존 정책</text>
+            <text x="1028" y="394">접근 로그 해시</text>
+            <text x="1028" y="448" class="svg-chip gold">감사 증적 보존 검토</text>
+
+            <path d="M282 234 C320 234 318 234 354 234" class="svg-arrow" />
+            <path d="M604 286 C642 286 638 286 676 286" class="svg-arrow" />
+            <path d="M926 338 C964 338 960 338 998 338" class="svg-arrow" />
+            <path d="M998 420 C856 610 430 610 282 420" class="svg-arrow dashed" />
+            <path d="M676 216 C592 86 438 86 354 216" class="svg-arrow dashed" />
+            <path d="M604 456 C692 586 910 586 998 456" class="svg-arrow dashed" />
+
+            <rect x="354" y="586" width="572" height="44" rx="22" fill="#0b3b7d" />
+            <text x="392" y="615" class="svg-white">거래번호 = 상태 + 동의 + 증빙 + TXID + 메시지 증적 + 감사 로그</text>
+          </svg>
         </div>
       </section>
 
       <section class="section-band signal-band" id="system">
         <div class="section-heading">
-          <p class="eyebrow">System Thesis</p>
-          <h2>투자 포인트는 거래 UI가 아니라, 복잡한 리스크를 상태값으로 통제하는 운영 OS에 있다</h2>
+          <p class="eyebrow">시스템 기획 방향</p>
+          <h2>단순 거래 UI가 아니라, 복잡한 리스크를 상태값으로 통제하는 운영 OS를 목표로 설계하고 있습니다</h2>
         </div>
         <div class="dense-grid">
           <article>
             <span class="material-symbols-rounded">account_tree</span>
             <h3>거래 상태기계</h3>
-            <p>신청 전, 거래신청, 매칭준비중, 매칭확정, STEP1, STEP2, 거래완료, 분쟁검토를 서버 전이 조건으로 잠근다.</p>
+            <p>신청 전, 거래신청, 매칭준비중, 매칭확정, STEP1, STEP2, 거래완료, 분쟁검토를 서버 전이 조건으로 통제하는 방향을 검토하고 있습니다.</p>
           </article>
           <article>
             <span class="material-symbols-rounded">phone_in_talk</span>
             <h3>ARS 확정성</h3>
-            <p>양측이 거래소 연락과 매칭 진행에 동의해야 PIN 입력 단계로 넘어가며, 매칭확정 후 임의 취소를 차단한다.</p>
+            <p>양측이 거래소 연락과 매칭 진행에 동의해야 PIN 입력 단계로 넘어가도록 하고, 매칭확정 후 임의 취소를 제한하는 방향으로 설계하고 있습니다.</p>
           </article>
           <article>
             <span class="material-symbols-rounded">forum</span>
             <h3>운영자 메시지</h3>
-            <p>매수자와 매도자의 직접 소통을 금지하고, 매칭건별 운영자 채널을 분리해 고객 문의와 선제 안내를 관리한다.</p>
+            <p>매수자와 매도자의 직접 소통을 제한하고, 매칭건별 운영자 채널을 분리해 고객 문의와 선제 안내를 관리하는 구조를 검토하고 있습니다.</p>
           </article>
           <article>
             <span class="material-symbols-rounded">receipt_long</span>
             <h3>정산 엔진</h3>
-            <p>프리미엄, 매수자 부담 수수료, 매도자 부담 수수료를 수량 차감과 지갑 입금으로 분해해 매출 근거를 남긴다.</p>
+            <p>프리미엄, 매수자 부담 수수료, 매도자 부담 수수료를 수량 차감과 지갑 입금으로 분해해 매출 근거를 남기는 방향으로 설계하고 있습니다.</p>
           </article>
         </div>
       </section>
 
       <section class="section-band architecture-band">
         <div class="section-heading">
-          <p class="eyebrow">Architecture Map</p>
-          <h2>일부러 복잡하게 보여도 되는 영역: 거래·운영·정산·감사 레이어가 한 장에 보이는 구조</h2>
+          <p class="eyebrow">운영 구조 맵</p>
+          <h2>거래·운영·정산·감사 레이어가 한 장에 보이도록 구성하고 있습니다</h2>
         </div>
         <div class="architecture-map" aria-label="FOBL Safe Trade architecture map">
           <div class="lane buyer">
@@ -84,11 +203,11 @@
           </div>
           <div class="lane engine">
             <strong>거래 상태 엔진</strong>
-            <span>amount band matcher</span>
-            <span>ARS result ledger</span>
-            <span>PIN confirmation</span>
-            <span>wallet exposure rule</span>
-            <span>cancel/dispute lock</span>
+            <span>금액대 매칭</span>
+            <span>ARS 결과 기록</span>
+            <span>PIN 확인 조건</span>
+            <span>지갑주소 노출 규칙</span>
+            <span>취소/분쟁 잠금</span>
           </div>
           <div class="lane operator">
             <strong>운영자 콘솔</strong>
@@ -100,11 +219,11 @@
           </div>
           <div class="lane settlement">
             <strong>정산/감사 레이어</strong>
-            <span>premium delta</span>
-            <span>fee wallet TXID</span>
-            <span>buyer receive qty</span>
-            <span>seller send qty</span>
-            <span>5-year audit log</span>
+            <span>프리미엄 차감</span>
+            <span>수수료 지갑 TXID</span>
+            <span>매수자 수령수량</span>
+            <span>매도자 전송수량</span>
+            <span>감사 로그 보존</span>
           </div>
           <div class="lane seller">
             <strong>USDT 매도자</strong>
@@ -119,8 +238,18 @@
 
       <section class="section-band flow-band" id="flow">
         <div class="section-heading">
-          <p class="eyebrow">Controlled Trade Flow</p>
-          <h2>고객 경험은 단순하지만 내부는 촘촘하다</h2>
+          <p class="eyebrow">거래 흐름 기획</p>
+          <h2>고객 경험은 단순하게 두고, 내부 상태 검증은 촘촘하게 설계하고 있습니다</h2>
+        </div>
+        <div class="state-machine" aria-label="거래 상태기계 도식">
+          <div class="state-node start">신청 전</div>
+          <div class="state-node">거래신청</div>
+          <div class="state-node">매칭준비중<br /><small>ARS/PIN</small></div>
+          <div class="state-node lock">매칭확정<br /><small>취소잠금</small></div>
+          <div class="state-node">STEP1<br /><small>USDT 검증</small></div>
+          <div class="state-node">STEP2<br /><small>원화/증빙</small></div>
+          <div class="state-node done">거래완료</div>
+          <div class="state-node dispute">분쟁검토</div>
         </div>
         <ol class="flow-rail">
           <li><b>01</b><strong>사전 자격</strong><span>매수자 지갑 생성위임 · 매도자 계좌 1원 인증</span></li>
@@ -134,54 +263,68 @@
 
       <section class="section-band operator-band" id="operator">
         <div class="section-heading">
-          <p class="eyebrow">Operator Controlled Communication</p>
-          <h2>직접 채팅을 만들지 않는 것이 핵심 설계다</h2>
+          <p class="eyebrow">운영자 중개 소통</p>
+          <h2>직접 채팅을 만들지 않는 운영자 중개 구조를 검토하고 있습니다</h2>
         </div>
         <div class="operator-layout">
           <div class="operator-copy">
-            <h3>매수자와 매도자는 서로 말하지 않는다</h3>
+            <h3>매수자와 매도자가 직접 소통하지 않는 구조를 설계하고 있습니다</h3>
             <p>
-              모든 문의, 보완요청, 분쟁 안내는 운영자 메시지 채널로만 흐른다.
-              어드민은 매칭건 하나에서 매수자 채널과 매도자 채널을 동시에 보고,
-              고객에게는 상대방 원문이나 연락처를 노출하지 않는다.
+              모든 문의, 보완요청, 분쟁 안내를 운영자 메시지 채널로 모으는 방향을 검토하고 있습니다.
+              어드민은 매칭건 하나에서 매수자 채널과 매도자 채널을 동시에 확인하고,
+              고객에게는 상대방 원문이나 연락처를 노출하지 않는 구조를 목표로 하고 있습니다.
             </p>
           </div>
           <div class="message-stack" aria-label="운영자 메시지 구조">
-            <div><b>Buyer ↔ Operator</b><span>증빙 제출 · 문의 · 보완요청</span></div>
-            <div><b>Admin Match Console</b><span>양측 채널 동시 조회 · 내부 메모 · 템플릿 발송</span></div>
-            <div><b>Seller ↔ Operator</b><span>입금확인 요청 · 반환검토 · 분쟁 안내</span></div>
+            <div><b>매수자 ↔ 운영자</b><span>증빙 제출 · 문의 · 보완요청</span></div>
+            <div><b>어드민 매칭 콘솔</b><span>양측 채널 동시 조회 · 내부 메모 · 템플릿 발송</span></div>
+            <div><b>매도자 ↔ 운영자</b><span>입금확인 요청 · 반환검토 · 분쟁 안내</span></div>
           </div>
         </div>
       </section>
 
       <section class="section-band economics-band" id="economics">
         <div class="section-heading">
-          <p class="eyebrow">Economics / Revenue Logic</p>
-          <h2>수수료와 프리미엄을 거래 수량 안에서 회계 가능한 구조로 분리한다</h2>
+          <p class="eyebrow">수익 구조 검토</p>
+          <h2>수수료와 프리미엄을 거래 수량 안에서 회계 가능한 구조로 분리하는 방향을 검토하고 있습니다</h2>
+        </div>
+        <div class="settlement-diagram" aria-label="정산 수량 흐름 도식">
+          <div class="settle-party seller-side">
+            <b>USDT 매도자 전송</b>
+            <span>기준 USDT + 매도자 부담 수수료</span>
+          </div>
+          <div class="settle-split">
+            <div><strong>매수자 수령지갑</strong><span>기준 USDT - 매수자 수수료 - 프리미엄</span></div>
+            <div><strong>포블 수수료 지갑</strong><span>프리미엄 + 매수자 수수료 + 매도자 수수료</span></div>
+          </div>
+          <div class="settle-party buyer-side">
+            <b>USDT 매수자 부담</b>
+            <span>프리미엄과 매수자 수수료는 실제 수령 수량에 반영</span>
+          </div>
         </div>
         <div class="economics-grid">
           <article>
-            <small>FOBL Revenue</small>
-            <strong>Premium + Buyer Fee + Seller Fee</strong>
-            <p>포블 수수료 지갑으로 들어오는 USDT는 프리미엄과 양측 수수료의 합계로 관리한다.</p>
+            <small>포블 수익 항목</small>
+            <strong>프리미엄 + 매수자 수수료 + 매도자 수수료</strong>
+            <p>포블 수수료 지갑으로 들어오는 USDT를 프리미엄과 양측 수수료의 합계로 관리하는 방향을 검토하고 있습니다.</p>
           </article>
           <article>
-            <small>Buyer Receive Qty</small>
-            <strong>Base USDT - Buyer Fee - Premium</strong>
-            <p>프리미엄과 매수자 부담 수수료는 매수자의 실제 수령 수량에서 차감된다.</p>
+            <small>매수자 실제 수령</small>
+            <strong>기준 USDT - 매수자 수수료 - 프리미엄</strong>
+            <p>프리미엄과 매수자 부담 수수료를 매수자의 실제 수령 수량에서 차감하는 구조를 검토하고 있습니다.</p>
           </article>
           <article>
-            <small>Seller Send Qty</small>
-            <strong>Base USDT + Seller Fee</strong>
-            <p>매도자는 자기 부담 수수료만 추가 부담하고, 매도자에게 유리한 프리미엄은 매수자 부담으로 작동한다.</p>
+            <small>매도자 전송 수량</small>
+            <strong>기준 USDT + 매도자 수수료</strong>
+            <p>매도자는 자기 부담 수수료만 추가 부담하고, 매도자에게 유리한 프리미엄은 매수자 부담으로 반영하는 방향을 검토하고 있습니다.</p>
           </article>
         </div>
       </section>
 
       <section class="section-band roadmap-band" id="roadmap">
         <div class="section-heading">
-          <p class="eyebrow">Execution Roadmap</p>
-          <h2>기획서에서 바로 개발 과제로 내려갈 수 있는 준비 상태</h2>
+          <p class="eyebrow">실행 로드맵</p>
+          <h2>정책 검토 문서를 기반으로 MVP 개발 과제로 전환할 수 있도록 준비하고 있습니다</h2>
         </div>
         <div class="roadmap">
           <div><b>Phase 1</b><strong>정책/상태값 확정</strong><span>ARS, PIN, 취소잠금, 증적 보존 기준</span></div>
@@ -192,8 +335,8 @@
       </section>
 
       <section class="closing-band">
-        <p class="eyebrow">Investment Narrative</p>
-        <h2>FOBL Safe Trade는 단순 P2P 화면이 아니라, 불확실한 장외 거래를 규칙·증적·정산 가능한 금융 운영 시스템으로 바꾸는 인프라다.</h2>
+        <p class="eyebrow">투자자 관점 요약</p>
+        <h2>FOBL 안전거래는 단순 P2P 거래 화면이 아니라, 불확실한 장외 거래를 규칙·증적·정산이 가능한 금융 운영 시스템으로 전환하는 것을 목표로 설계하고 있습니다.</h2>
       </section>
     </main>
   </body>

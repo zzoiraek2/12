@@ -6,7 +6,7 @@
     <title>FOBL USDT 안전거래 시스템 기획서</title>
     <link rel="stylesheet" href="../vendor/fonts/pretendard/pretendard.css?v=20260622" />
     <link rel="stylesheet" href="../vendor/material-symbols/material-symbols-rounded.css?v=20260619-m3" />
-    <link rel="stylesheet" href="./styles.css?v=20260622-print" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-brief" />
   </head>
   <body>
     <header class="topbar">
@@ -15,11 +15,15 @@
         <strong>FOBL 안전거래</strong>
       </a>
       <nav aria-label="문서 섹션">
+        <a href="#summary">요약</a>
         <a href="#opportunity">투자 포인트</a>
+        <a href="#model">서비스 구조</a>
         <a href="#system">기획 방향</a>
+        <a href="#trust">지갑/보안</a>
         <a href="#blueprint">구조도</a>
         <a href="#flow">거래 흐름</a>
         <a href="#operator">운영</a>
+        <a href="#risk">리스크</a>
         <a href="#economics">수익 구조</a>
         <a href="#roadmap">로드맵</a>
       </nav>
@@ -51,6 +55,46 @@
         </div>
       </section>
 
+      <section class="section-band summary-band" id="summary">
+        <div class="section-heading">
+          <p class="eyebrow">Executive Summary</p>
+          <h2>FOBL Safe Trade는 회원 간 USDT 거래를 단순 연결하는 서비스가 아니라, 거래 의사·자산 이동·원화 확인·분쟁 판단을 하나의 상태값으로 관리하는 거래 운영 인프라를 목표로 하고 있습니다</h2>
+        </div>
+        <div class="brief-panel">
+          <p>
+            본 기획은 정액 원화 거래금액 구간에 참여한 매수회원과 매도회원을 시스템이 랜덤으로 매칭하고,
+            매칭 이후에는 양측 ARS 동의, 6자리 PIN 등록, 조건부 암호화 수령지갑, 온체인 USDT 입금확인,
+            원화 직접입금 확인, 운영자 메시지, 분쟁검증 절차를 순서대로 연결하는 구조를 검토하고 있습니다.
+            핵심은 포블이 원화 거래대금을 수취하거나 보관하지 않으면서도, 거래가 무질서하게 외부 연락과
+            사적 합의로 흘러가지 않도록 플랫폼 내부 상태값과 증적을 통해 통제하는 데 있습니다.
+          </p>
+          <p>
+            투자자 관점에서 이 시스템의 의미는 두 가지입니다. 첫째, 기존 개인 간 USDT 거래의 가장 큰 약점인
+            “누가 먼저 보내는가”, “입금했다는 주장이 사실인가”, “분쟁 시 누가 판단하는가”의 문제를 화면,
+            로그, 승인, 보존정책으로 제품화할 수 있습니다. 둘째, 거래소가 직접 원화 대금을 보관하지 않는 구조에서도
+            매칭, 상태관리, 수수료 수취, 분쟁검증, 고객 안내를 수익화 가능한 운영 레이어로 만들 수 있는지를 검토합니다.
+          </p>
+        </div>
+        <div class="narrative-grid">
+          <article>
+            <strong>회원 간 직접 원화 입금</strong>
+            <p>원화는 매수회원이 매도회원의 본인 인증 완료 계좌로 직접 입금합니다. 포블은 원화 거래대금을 수취, 보관, 정산, 대리수령 또는 대리지급하지 않는 구조를 전제로 검토하고 있습니다.</p>
+          </article>
+          <article>
+            <strong>USDT 선전송의 불안을 조건부 지갑으로 보완</strong>
+            <p>매도회원은 매수회원에게 귀속될 조건부 암호화 수령지갑으로 USDT를 먼저 전송합니다. 거래 완료 또는 분쟁 결과 확정 전까지 지갑 접근정보는 암호화된 상태로 관리하는 방향입니다.</p>
+          </article>
+          <article>
+            <strong>매수자와 매도자의 직접 소통 제한</strong>
+            <p>상대방 연락처 교환, 외부 링크, 임의 조건 변경을 막고, 필요한 안내와 증빙 보완은 운영자 메시지 채널에서 매칭건별로 관리하는 구조를 지향합니다.</p>
+          </article>
+          <article>
+            <strong>수익과 감사가 남는 거래번호</strong>
+            <p>거래번호 하나에 상태값, ARS 결과, PIN 완료 여부, 수령지갑, 수수료 지갑 TXID, 원화 증빙, 운영자 메시지, 분쟁 판단 결과를 연결해 사후 검증 가능한 기록을 남기는 방향입니다.</p>
+          </article>
+        </div>
+      </section>
+
       <section class="section-band opportunity-band" id="opportunity">
         <div class="section-heading">
           <p class="eyebrow">투자자 관점 핵심</p>
@@ -78,6 +122,73 @@
             <p>정책 분석, 상태값, 버튼/메시지, 운영자 콘솔, 모바일 UIUX, 정산 산식까지 개발 과제로 전환할 수 있도록 정리하고 있습니다.</p>
           </article>
         </div>
+      </section>
+
+      <section class="section-band model-band" id="model">
+        <div class="section-heading">
+          <p class="eyebrow">서비스 기본 구조</p>
+          <h2>정액 거래금액 구간 참여형 랜덤매칭 구조로, 거래조건 협의가 아니라 절차 이행 중심의 안전거래 경험을 만들고자 합니다</h2>
+        </div>
+        <div class="copy-columns">
+          <article>
+            <h3>거래는 금액 구간 단위로 시작됩니다</h3>
+            <p>
+              회원은 포블이 사전에 정한 원화 거래금액 구간 중 하나를 선택해 매수 또는 매도 의사로 참여합니다.
+              회원이 임의 금액을 입력해 상대방과 조건을 협의하는 방식이 아니라, 시스템이 제공하는 구간 안에서
+              동일 금액대의 반대 방향 참여자를 연결하는 방식입니다. 이 구조는 거래조건 변경, 외부 협의,
+              상대방 직접 지정에 따른 운영 리스크를 줄이는 데 목적이 있습니다.
+            </p>
+          </article>
+          <article>
+            <h3>매칭은 바로 거래확정이 아니라 준비상태로 진입합니다</h3>
+            <p>
+              동일 구간에서 매수·매도 의사가 연결되면 거래는 매칭준비 상태로 들어갑니다.
+              이 단계에서는 양 당사자의 거래 진행 의사를 ARS로 확인하고, 매칭 확정을 위한 PIN 입력을 요구합니다.
+              매칭준비 단계에서는 수령지갑 주소와 포블 수수료 지갑 주소가 공개되지 않으며,
+              양측 동의와 필수 조건이 충족된 이후에만 매칭확정으로 이동하는 방향을 검토합니다.
+            </p>
+          </article>
+          <article>
+            <h3>매칭확정 이후에는 취소 가능성을 제한합니다</h3>
+            <p>
+              매칭확정은 양측이 거래소 연락 및 매칭 진행에 동의하고, 매수회원과 매도회원이 각각 6자리 PIN을
+              등록한 뒤 성립하는 단계로 설계합니다. 이 시점부터는 거래가 단순 대기상태가 아니라
+              USDT 선전송, 수수료 전송, 원화 입금, 수취확정으로 이어지는 확정 거래 흐름으로 전환되므로
+              임의 취소를 제한하고, 취소 또는 중단은 운영정책과 분쟁검증 상태값을 통해 관리하는 방향입니다.
+            </p>
+          </article>
+        </div>
+        <table class="policy-table" aria-label="서비스 기본 구조 요약">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>기획 방향</th>
+              <th>투자자 관점 의미</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>거래금액</td>
+              <td>500만원, 1,000만원, 3,000만원, 5,000만원 등 정액 구간 운영 검토</td>
+              <td>상품화와 리스크 한도 관리를 동시에 설계 가능</td>
+            </tr>
+            <tr>
+              <td>상대방 결정</td>
+              <td>동일 구간 내 매수·매도 의사를 랜덤매칭</td>
+              <td>상대방 지정, 외부 영업, 임의 조건 변경을 줄이는 운영 구조</td>
+            </tr>
+            <tr>
+              <td>거래 확정</td>
+              <td>ARS 동의와 양측 PIN 등록 후 매칭확정</td>
+              <td>거래 진행 의사를 증적화해 분쟁 시 판단 근거 확보</td>
+            </tr>
+            <tr>
+              <td>대금 흐름</td>
+              <td>원화는 매수자에서 매도자 본인 인증 계좌로 직접 입금</td>
+              <td>포블의 원화 보관·정산 부담을 줄이는 구조</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section class="section-band blueprint-band" id="blueprint">
@@ -246,6 +357,32 @@
         </div>
       </section>
 
+      <section class="section-band trust-band" id="trust">
+        <div class="section-heading">
+          <p class="eyebrow">조건부 암호화 수령지갑</p>
+          <h2>매수회원에게 귀속될 수령지갑을 만들되, 거래 완료 전까지 어느 일방도 단독으로 지갑 접근정보를 열람하지 못하는 구조를 검토하고 있습니다</h2>
+        </div>
+        <div class="brief-panel">
+          <p>
+            본 구조에서 수령지갑은 매수회원이 USDT를 수령하기 위한 주소입니다. 다만 매도회원이 USDT를 먼저 전송하는
+            거래구조이므로, 거래 정상완료 또는 분쟁처리 결과 확정 전까지 지갑 접근정보는 조건부 접근상태로 관리하는 방향입니다.
+            매수회원 단독 접근, 매도회원 단독 반환, 포블 단독 복호화가 모두 불가능하도록 설계하는 것이 핵심입니다.
+          </p>
+          <p>
+            정상거래가 완료되면 매수회원의 PIN 기반 키와 포블 승인 절차가 결합되어 지갑 접근정보 확인을 지원합니다.
+            반대로 매도회원이 USDT를 전송했으나 매수회원이 원화 입금의무를 이행하지 않는 등 매수회원 귀책 분쟁이 확정되면,
+            매도회원의 PIN 기반 키와 포블 승인 절차를 결합해 수령지갑 내 USDT 반환을 지원하는 방향을 검토합니다.
+            이때도 포블 단독으로 니모닉을 복호화하거나 USDT를 이전할 수 없다는 원칙을 유지합니다.
+          </p>
+        </div>
+        <div class="principle-list">
+          <div><b>원화 미보관</b><span>포블은 원화 거래대금을 수취·보관·정산하지 않는 구조를 전제로 합니다.</span></div>
+          <div><b>수령분 USDT 미보관</b><span>매수회원 수령분 USDT는 포블 회사 지갑이 아니라 조건부 수령지갑으로 전송되는 방향입니다.</span></div>
+          <div><b>니모닉 원문 미열람</b><span>포블은 암호화된 니모닉 데이터와 승인 절차를 관리하되, 단독 복호화가 불가능한 구조를 검토합니다.</span></div>
+          <div><b>7일 확인 정책</b><span>정상거래 완료 후 매수회원이 지갑 접근정보를 확인하고 백업해야 하는 기간 정책을 별도로 운영합니다.</span></div>
+        </div>
+      </section>
+
       <section class="section-band flow-band" id="flow">
         <div class="section-heading">
           <p class="eyebrow">거래 흐름 기획</p>
@@ -293,6 +430,75 @@
         </div>
       </section>
 
+      <section class="section-band risk-band" id="risk">
+        <div class="section-heading">
+          <p class="eyebrow">분쟁 및 리스크 통제</p>
+          <h2>분쟁은 예외상황이 아니라 거래 시스템의 필수 상태값으로 보고, 자료요청·보류·반환검토·이용제한까지 운영 흐름에 포함하고 있습니다</h2>
+        </div>
+        <div class="copy-columns">
+          <article>
+            <h3>원화 입금 미이행</h3>
+            <p>
+              매수회원이 USDT 수량을 확인한 뒤 정해진 시간 내 원화를 입금하지 않으면 거래는 분쟁 또는 취소 상태로 전환됩니다.
+              포블은 매수회원에게 입금 이행 또는 자료 제출을 요청하고, 매수회원 귀책으로 확인되는 경우 매도회원 PIN과
+              포블 승인 절차를 통해 반환 지원 가능성을 검토합니다.
+            </p>
+          </article>
+          <article>
+            <h3>입금 주장과 실제 수취 불일치</h3>
+            <p>
+              매수회원은 입금완료를 표시했지만 매도회원이 수취하지 못했다고 주장하는 경우, 거래는 분쟁 상태로 전환됩니다.
+              이체확인증, 매도회원 입금내역, 입금자명, 입금시각, 계좌 정보 일부, 거래ID, 온체인 입금 기록,
+              운영자 메시지 기록을 함께 검토하는 프로세스를 둡니다.
+            </p>
+          </article>
+          <article>
+            <h3>허위 수취확정과 허위 입금완료</h3>
+            <p>
+              매도회원이 실제 원화 수취 없이 허위로 수취확정을 하거나, 매수회원이 실제 입금 없이 입금완료를 표시하는 경우를
+              별도 리스크로 관리합니다. 반복성 또는 고의성이 확인되면 거래 보류, 이용제한, 의심거래 검토, 관계기관 신고,
+              손해배상 관련 자료 제공까지 이어질 수 있는 운영정책을 검토합니다.
+            </p>
+          </article>
+        </div>
+        <table class="policy-table" aria-label="분쟁 리스크와 대응">
+          <thead>
+            <tr>
+              <th>리스크</th>
+              <th>상황</th>
+              <th>대응 방향</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>제3자 명의 입금</td>
+              <td>매수회원 본인이 아닌 제3자 명의로 원화가 입금된 경우</td>
+              <td>거래 보류, 추가자료 요청, 의심거래 검토</td>
+            </tr>
+            <tr>
+              <td>온체인 수량 불일치</td>
+              <td>수령지갑 또는 수수료 지갑 입금수량이 기준과 다를 경우</td>
+              <td>USDT 확인 보류, 보완 전송 요청, 분쟁 전환</td>
+            </tr>
+            <tr>
+              <td>수수료 미입금</td>
+              <td>매도회원이 포블 수수료 지갑으로 필요한 수량을 보내지 않은 경우</td>
+              <td>거래완료 제한, 운영자 안내, 정산 보류</td>
+            </tr>
+            <tr>
+              <td>외부 연락 유도</td>
+              <td>전화번호, 메신저 ID, 외부 링크 교환 시도</td>
+              <td>메시지 차단, 거래 보류 또는 취소, 이용제한 검토</td>
+            </tr>
+            <tr>
+              <td>PIN 분실</td>
+              <td>정상 열람 또는 반환 지원에 필요한 PIN을 분실한 경우</td>
+              <td>본인확인, 추가인증, 내부승인, 분쟁처리 기준에 따라 보류</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <section class="section-band economics-band" id="economics">
         <div class="section-heading">
           <p class="eyebrow">수익 구조 검토</p>
@@ -329,6 +535,42 @@
             <p>매도자는 자기 부담 수수료만 추가 부담하고, 매도자에게 유리한 프리미엄은 매수자 부담으로 반영하는 방향을 검토하고 있습니다.</p>
           </article>
         </div>
+        <table class="policy-table economics-table" aria-label="수수료 산식 예시">
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>산식 예시</th>
+              <th>기획상 의미</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>기준 USDT 수량</td>
+              <td>원화 거래금액 ÷ 적용 USDT 교환비율</td>
+              <td>거래 시작 시 화면과 장부에 고정되는 기준 수량</td>
+            </tr>
+            <tr>
+              <td>매수회원 수령수량</td>
+              <td>기준 수량 - 매수회원 수수료 - 프리미엄</td>
+              <td>매수자가 부담하는 비용을 실제 수령 수량에 반영</td>
+            </tr>
+            <tr>
+              <td>포블 수수료 지갑 입금</td>
+              <td>프리미엄 + 매수회원 수수료 + 매도회원 수수료</td>
+              <td>포블 매출 또는 정산 검토 대상이 되는 USDT 흐름</td>
+            </tr>
+            <tr>
+              <td>매도회원 부담</td>
+              <td>기준 수량 + 매도회원 수수료</td>
+              <td>매도자는 자기 부담 수수료를 추가 전송하고, 프리미엄은 매수자 수령수량에 반영</td>
+            </tr>
+            <tr>
+              <td>검증 포인트</td>
+              <td>수령지갑 TXID + 수수료 지갑 TXID + 산식 결과</td>
+              <td>거래완료, 정산확정, 분쟁검토의 공통 근거로 사용</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <section class="section-band roadmap-band" id="roadmap">

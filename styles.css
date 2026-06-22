@@ -55,6 +55,11 @@
   --md-sys-color-outline: var(--m3-outline);
   --md-sys-color-outline-variant: var(--m3-outline-variant);
   --md-sys-shape-corner-full: var(--m3-radius-full);
+  --md-ref-typeface-plain: "Pretendard";
+  --md-ref-typeface-brand: "Pretendard";
+  --md-sys-typescale-label-large-font: "Pretendard";
+  --md-sys-typescale-body-medium-font: "Pretendard";
+  --md-sys-typescale-headline-small-font: "Pretendard";
 }
 
 * {
@@ -71,9 +76,6 @@ body {
   background: var(--bg);
   font-family:
     "Pretendard",
-    "Noto Sans KR",
-    "Apple SD Gothic Neo",
-    "Malgun Gothic",
     system-ui,
     sans-serif;
   line-height: 1.5;

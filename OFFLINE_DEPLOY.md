@@ -19,6 +19,10 @@ vendor/
   material-symbols/
     material-symbols-rounded.css
     material-symbols-rounded.ttf
+  fonts/
+    pretendard/
+      pretendard.css
+      PretendardVariable.woff2
 ```
 
 ## 원인
@@ -43,7 +47,7 @@ https://unpkg.com/...
 <script type="module" src="./vendor/material-web/all.bundle.mjs"></script>
 ```
 
-따라서 `vendor` 폴더만 함께 배포하면 통신이 없는 환경에서도 Mermaid 시퀀스, 기존 Lucide 아이콘, Material Symbols 아이콘, Material Web 컴포넌트가 렌더링된다.
+따라서 `vendor` 폴더만 함께 배포하면 통신이 없는 환경에서도 Mermaid 시퀀스, 기존 Lucide 아이콘, Material Symbols 아이콘, Material Web 컴포넌트, Pretendard 폰트가 렌더링된다.
 
 ## 확인 방법
 
@@ -53,6 +57,7 @@ https://unpkg.com/...
 2. `vendor/lucide.min.js`가 200으로 로드되는지 확인
 3. `vendor/material-web/all.bundle.mjs`가 200으로 로드되는지 확인
 4. `vendor/material-symbols/material-symbols-rounded.css`와 `.ttf`가 200으로 로드되는지 확인
-5. `cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com` 요청이 없는지 확인
+5. `vendor/fonts/pretendard/pretendard.css`와 `.woff2`가 200으로 로드되는지 확인
+6. `cdn.jsdelivr.net`, `unpkg.com`, `fonts.googleapis.com`, `fonts.gstatic.com` 요청이 없는지 확인
 
 Mermaid 파일을 찾지 못하면 화면은 시퀀스 원문을 fallback으로 표시한다.

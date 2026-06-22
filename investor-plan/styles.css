@@ -29,9 +29,6 @@ body {
   background: var(--paper);
   font-family:
     "Pretendard",
-    "Noto Sans KR",
-    "Apple SD Gothic Neo",
-    "Malgun Gothic",
     system-ui,
     sans-serif;
   line-height: 1.55;
@@ -266,7 +263,6 @@ a {
   fill: var(--ink-soft);
   font-family:
     "Pretendard",
-    "Noto Sans KR",
     system-ui,
     sans-serif;
   font-size: 18px;
@@ -723,7 +719,7 @@ a {
   display: block;
   margin: 16px 0;
   color: var(--navy);
-  font-family: Consolas, "SFMono-Regular", monospace;
+  font-family: "Pretendard", system-ui, sans-serif;
   font-size: clamp(21px, 2.3vw, 31px);
   line-height: 1.2;
 }

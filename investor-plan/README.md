@@ -30,4 +30,4 @@ investor-plan/
     safe-trade-system.png
 ```
 
-Material Symbols는 저장소 루트의 `vendor/material-symbols/`를 사용한다.
+Pretendard와 Material Symbols는 저장소 루트의 `vendor/fonts/pretendard/`, `vendor/material-symbols/`를 사용한다.

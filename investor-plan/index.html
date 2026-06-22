@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FOBL USDT Safe Trade Investor Brief</title>
+    <link rel="stylesheet" href="../vendor/material-symbols/material-symbols-rounded.css?v=20260619-m3" />
+    <link rel="stylesheet" href="./styles.css?v=20260622-investor" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="FOBL Safe Trade">
+        <span class="material-symbols-rounded">verified_user</span>
+        <strong>FOBL Safe Trade</strong>
+      </a>
+      <nav aria-label="문서 섹션">
+        <a href="#system">System</a>
+        <a href="#flow">Flow</a>
+        <a href="#operator">Ops</a>
+        <a href="#economics">Economics</a>
+        <a href="#roadmap">Roadmap</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-label="투자자용 시스템 기획서 요약">
+        <div class="hero-copy">
+          <p class="eyebrow">Investor System Brief · USDT 안전거래 인프라</p>
+          <h1>원화와 USDT 사이의 불신을 운영 가능한 거래 확정성으로 바꾸는 매칭 인프라</h1>
+          <p>
+            FOBL Safe Trade는 매수자와 매도자를 직접 대화시키지 않고, ARS 동의, PIN 확정, 지갑/입금 검증,
+            운영자 메시지, 분쟁 증적을 하나의 거래 상태기계로 묶어 안전거래를 성립시키는 시스템이다.
+          </p>
+          <div class="hero-actions" aria-label="핵심 포인트">
+            <span><b>2-sided</b> ARS/PIN 확정</span>
+            <span><b>No direct chat</b> 운영자 중개</span>
+            <span><b>Audit ready</b> 증적 로그</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band signal-band" id="system">
+        <div class="section-heading">
+          <p class="eyebrow">System Thesis</p>
+          <h2>투자 포인트는 거래 UI가 아니라, 복잡한 리스크를 상태값으로 통제하는 운영 OS에 있다</h2>
+        </div>
+        <div class="dense-grid">
+          <article>
+            <span class="material-symbols-rounded">account_tree</span>
+            <h3>거래 상태기계</h3>
+            <p>신청 전, 거래신청, 매칭준비중, 매칭확정, STEP1, STEP2, 거래완료, 분쟁검토를 서버 전이 조건으로 잠근다.</p>
+          </article>
+          <article>
+            <span class="material-symbols-rounded">phone_in_talk</span>
+            <h3>ARS 확정성</h3>
+            <p>양측이 거래소 연락과 매칭 진행에 동의해야 PIN 입력 단계로 넘어가며, 매칭확정 후 임의 취소를 차단한다.</p>
+          </article>
+          <article>
+            <span class="material-symbols-rounded">forum</span>
+            <h3>운영자 메시지</h3>
+            <p>매수자와 매도자의 직접 소통을 금지하고, 매칭건별 운영자 채널을 분리해 고객 문의와 선제 안내를 관리한다.</p>
+          </article>
+          <article>
+            <span class="material-symbols-rounded">receipt_long</span>
+            <h3>정산 엔진</h3>
+            <p>프리미엄, 매수자 부담 수수료, 매도자 부담 수수료를 수량 차감과 지갑 입금으로 분해해 매출 근거를 남긴다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band architecture-band">
+        <div class="section-heading">
+          <p class="eyebrow">Architecture Map</p>
+          <h2>일부러 복잡하게 보여도 되는 영역: 거래·운영·정산·감사 레이어가 한 장에 보이는 구조</h2>
+        </div>
+        <div class="architecture-map" aria-label="FOBL Safe Trade architecture map">
+          <div class="lane buyer">
+            <strong>USDT 매수자</strong>
+            <span>지갑 생성위임</span>
+            <span>ARS 동의</span>
+            <span>PIN 입력</span>
+            <span>원화 이체증빙</span>
+            <span>니모닉 열람</span>
+          </div>
+          <div class="lane engine">
+            <strong>거래 상태 엔진</strong>
+            <span>amount band matcher</span>
+            <span>ARS result ledger</span>
+            <span>PIN confirmation</span>
+            <span>wallet exposure rule</span>
+            <span>cancel/dispute lock</span>
+          </div>
+          <div class="lane operator">
+            <strong>운영자 콘솔</strong>
+            <span>매칭 메시지 관리</span>
+            <span>증빙 보완요청</span>
+            <span>원화 확인 지연</span>
+            <span>분쟁 증적 연결</span>
+            <span>선제 안내 발송</span>
+          </div>
+          <div class="lane settlement">
+            <strong>정산/감사 레이어</strong>
+            <span>premium delta</span>
+            <span>fee wallet TXID</span>
+            <span>buyer receive qty</span>
+            <span>seller send qty</span>
+            <span>5-year audit log</span>
+          </div>
+          <div class="lane seller">
+            <strong>USDT 매도자</strong>
+            <span>계좌 1원 인증</span>
+            <span>ARS 동의</span>
+            <span>PIN 입력</span>
+            <span>USDT + 수수료 전송</span>
+            <span>원화 입금확인</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band flow-band" id="flow">
+        <div class="section-heading">
+          <p class="eyebrow">Controlled Trade Flow</p>
+          <h2>고객 경험은 단순하지만 내부는 촘촘하다</h2>
+        </div>
+        <ol class="flow-rail">
+          <li><b>01</b><strong>사전 자격</strong><span>매수자 지갑 생성위임 · 매도자 계좌 1원 인증</span></li>
+          <li><b>02</b><strong>금액대 매칭</strong><span>동일 금액대 신청건 매칭 · 매칭준비중 진입</span></li>
+          <li><b>03</b><strong>ARS/PIN 확정</strong><span>양측 ARS 동의 후 PIN 입력 · 매칭확정 이후 취소잠금</span></li>
+          <li><b>04</b><strong>USDT 검증</strong><span>수령지갑 입금과 포블 수수료 지갑 입금 자동검증</span></li>
+          <li><b>05</b><strong>원화 증빙</strong><span>계좌 오픈 · 이체확인증 · 매도자 실제 입금확인</span></li>
+          <li><b>06</b><strong>완료/증적</strong><span>니모닉 열람 · 거래완료 · 로그/증빙 보존</span></li>
+        </ol>
+      </section>
+
+      <section class="section-band operator-band" id="operator">
+        <div class="section-heading">
+          <p class="eyebrow">Operator Controlled Communication</p>
+          <h2>직접 채팅을 만들지 않는 것이 핵심 설계다</h2>
+        </div>
+        <div class="operator-layout">
+          <div class="operator-copy">
+            <h3>매수자와 매도자는 서로 말하지 않는다</h3>
+            <p>
+              모든 문의, 보완요청, 분쟁 안내는 운영자 메시지 채널로만 흐른다.
+              어드민은 매칭건 하나에서 매수자 채널과 매도자 채널을 동시에 보고,
+              고객에게는 상대방 원문이나 연락처를 노출하지 않는다.
+            </p>
+          </div>
+          <div class="message-stack" aria-label="운영자 메시지 구조">
+            <div><b>Buyer ↔ Operator</b><span>증빙 제출 · 문의 · 보완요청</span></div>
+            <div><b>Admin Match Console</b><span>양측 채널 동시 조회 · 내부 메모 · 템플릿 발송</span></div>
+            <div><b>Seller ↔ Operator</b><span>입금확인 요청 · 반환검토 · 분쟁 안내</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-band economics-band" id="economics">
+        <div class="section-heading">
+          <p class="eyebrow">Economics / Revenue Logic</p>
+          <h2>수수료와 프리미엄을 거래 수량 안에서 회계 가능한 구조로 분리한다</h2>
+        </div>
+        <div class="economics-grid">
+          <article>
+            <small>FOBL Revenue</small>
+            <strong>Premium + Buyer Fee + Seller Fee</strong>
+            <p>포블 수수료 지갑으로 들어오는 USDT는 프리미엄과 양측 수수료의 합계로 관리한다.</p>
+          </article>
+          <article>
+            <small>Buyer Receive Qty</small>
+            <strong>Base USDT - Buyer Fee - Premium</strong>
+            <p>프리미엄과 매수자 부담 수수료는 매수자의 실제 수령 수량에서 차감된다.</p>
+          </article>
+          <article>
+            <small>Seller Send Qty</small>
+            <strong>Base USDT + Seller Fee</strong>
+            <p>매도자는 자기 부담 수수료만 추가 부담하고, 매도자에게 유리한 프리미엄은 매수자 부담으로 작동한다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band roadmap-band" id="roadmap">
+        <div class="section-heading">
+          <p class="eyebrow">Execution Roadmap</p>
+          <h2>기획서에서 바로 개발 과제로 내려갈 수 있는 준비 상태</h2>
+        </div>
+        <div class="roadmap">
+          <div><b>Phase 1</b><strong>정책/상태값 확정</strong><span>ARS, PIN, 취소잠금, 증적 보존 기준</span></div>
+          <div><b>Phase 2</b><strong>고객 거래 MVP</strong><span>매칭 신청, 지갑/계좌 노출, 증빙 제출</span></div>
+          <div><b>Phase 3</b><strong>어드민 운영 콘솔</strong><span>운영자 메시지, 승인검토, 분쟁/반환 관리</span></div>
+          <div><b>Phase 4</b><strong>정산/감사 자동화</strong><span>수수료 지갑, TXID, 변경감사, 리포트</span></div>
+        </div>
+      </section>
+
+      <section class="closing-band">
+        <p class="eyebrow">Investment Narrative</p>
+        <h2>FOBL Safe Trade는 단순 P2P 화면이 아니라, 불확실한 장외 거래를 규칙·증적·정산 가능한 금융 운영 시스템으로 바꾸는 인프라다.</h2>
+      </section>
+    </main>
+  </body>
+</html>
